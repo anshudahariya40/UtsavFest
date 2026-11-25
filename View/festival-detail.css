@@ -1,0 +1,308 @@
+.festival-detail-page {
+    background: #fff8f0;
+    color: #293241;
+    min-height: 100vh;
+}
+
+.festival-detail-page nav {
+    position: relative;
+}
+
+.festival-detail-page .nav-actions {
+    align-items: center;
+    display: flex;
+    gap: 18px;
+}
+
+.festival-cover {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    margin: 30px auto 0;
+    max-width: 1320px;
+    overflow: visible;
+}
+
+.festival-cover-content {
+    align-self: center;
+    padding: clamp(36px, 6vw, 84px);
+}
+
+.festival-back-link {
+    align-items: center;
+    color: #293241;
+    display: inline-flex;
+    font-size: 0.9rem;
+    gap: 9px;
+    margin-bottom: clamp(24px, 6svh, 56px);
+}
+
+.festival-back-link:hover,
+.festival-return-link:hover,
+.festival-footer > a:last-child:hover {
+    color: #d94f68;
+}
+
+.festival-eyebrow {
+    color: #d94f68;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+.festival-cover h1 {
+    color: #17233c;
+    font-size: clamp(2.5rem, 4.5vw, 4.4rem);
+    line-height: 1.08;
+    margin: 0;
+    max-width: 560px;
+}
+
+.festival-cover-location {
+    align-items: center;
+    color: #515b69;
+    display: flex;
+    gap: 9px;
+    margin-top: 20px;
+}
+
+.festival-cover-location i,
+.festival-cover-date i {
+    color: #d94f68;
+}
+
+.festival-cover-description {
+    color: #515b69;
+    font-size: 1.03rem;
+    line-height: 1.8;
+    margin: 24px 0 18px;
+    max-width: 520px;
+}
+
+.festival-cover-date {
+    align-items: center;
+    color: #293241;
+    display: flex;
+    font-size: 0.93rem;
+    font-weight: 700;
+    gap: 9px;
+}
+
+.festival-cover-visual {
+    align-self: start;
+    display: grid;
+    place-items: center;
+}
+
+.festival-cover-image {
+    display: block;
+    height: auto;
+    max-height: calc(100svh - 180px);
+    max-width: 100%;
+    object-fit: contain;
+    object-position: center;
+    width: auto;
+}
+
+.festival-details {
+    margin: 0 auto;
+    max-width: 1320px;
+    padding: 0 clamp(24px, 6vw, 84px) 72px;
+}
+
+.festival-facts h2 {
+    color: #17233c;
+    font-size: 1.8rem;
+    margin: 0 0 20px;
+}
+
+.festival-return-link {
+    color: #17233c;
+    display: inline-flex;
+    font-weight: 700;
+    gap: 10px;
+    margin-top: 26px;
+}
+
+.festival-facts {
+    border-top: 3px solid #e85d75;
+    padding: 28px 0 0;
+}
+
+.festival-facts h2 {
+    font-size: 1.35rem;
+    margin-bottom: 18px;
+}
+
+.festival-facts dl {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+}
+
+.festival-fact {
+    border-left: 1px solid #d9d8d4;
+    padding: 3px 0 3px 18px;
+}
+
+.festival-fact dt {
+    color: #68707d;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.festival-fact dt i {
+    color: #e85d75;
+    margin-right: 6px;
+}
+
+.festival-fact dd {
+    color: #293241;
+    font-weight: 600;
+    margin: 5px 0 0;
+    overflow-wrap: anywhere;
+}
+
+.festival-note {
+    color: #68707d;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin: 24px 0 0;
+}
+
+@media (max-width: 900px) {
+    .festival-detail-page nav {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .festival-detail-page .nav-links {
+        display: flex;
+        flex-basis: 100%;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        order: 3;
+    }
+
+    .festival-detail-page .nav-actions {
+        margin-left: auto;
+    }
+
+    .festival-cover {
+        grid-template-columns: 1fr;
+        margin-top: 16px;
+        min-height: 0;
+    }
+
+    .festival-cover-content {
+        padding: 34px 7% 38px;
+    }
+
+    .festival-back-link {
+        margin-bottom: 26px;
+    }
+
+    .festival-cover-visual {
+        grid-row: 1;
+    }
+
+    .festival-cover-content {
+        grid-row: 2;
+    }
+
+    .festival-cover-image {
+        max-height: calc(100svh - 240px);
+    }
+
+    .festival-details {
+        padding: 0 7% 54px;
+    }
+
+    .festival-facts dl {
+        gap: 14px;
+        grid-template-columns: 1fr;
+    }
+
+    .festival-fact {
+        border-left: 0;
+        border-top: 1px solid #d9d8d4;
+        padding: 14px 0 0;
+    }
+}
+
+.festival-detail-page .mobile-nav-toggle {
+    align-items: center;
+    background: transparent;
+    border: 1px solid rgba(244, 185, 66, 0.7);
+    border-radius: 5px;
+    color: #f4b942;
+    cursor: pointer;
+    display: none;
+    font-size: 1.05rem;
+    height: 42px;
+    justify-content: center;
+    width: 42px;
+}
+
+@media (max-width: 600px) {
+    .festival-detail-page nav {
+        align-items: center;
+        column-gap: 12px;
+        row-gap: 0;
+    }
+
+    .festival-detail-page .mobile-nav-toggle {
+        display: grid;
+        justify-items: center;
+        margin-left: auto;
+        order: 2;
+    }
+
+    .festival-detail-page .nav-links,
+    .festival-detail-page .nav-actions {
+        display: none;
+        flex-basis: 100%;
+        margin-left: 0;
+    }
+
+    .festival-detail-page .nav-links {
+        flex-direction: column;
+        gap: 0;
+        order: 3;
+    }
+
+    .festival-detail-page .nav-actions {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0;
+        order: 4;
+    }
+
+    .festival-detail-page nav.mobile-nav-open .nav-links,
+    .festival-detail-page nav.mobile-nav-open .nav-actions {
+        display: flex;
+    }
+
+    .festival-detail-page nav.mobile-nav-open .nav-links {
+        margin-top: 10px;
+    }
+
+    .festival-detail-page nav.mobile-nav-open .nav-links a,
+    .festival-detail-page nav.mobile-nav-open .nav-actions a {
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        color: #fff;
+        display: block;
+        padding: 11px 0;
+    }
+
+    .festival-detail-page nav.mobile-nav-open .nav-links a:hover,
+    .festival-detail-page nav.mobile-nav-open .nav-actions a:hover,
+    .festival-detail-page nav.mobile-nav-open .nav-links a:focus,
+    .festival-detail-page nav.mobile-nav-open .nav-actions a:focus {
+        color: #fff;
+    }
+}

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UtsavFest | Festival Calendar, Events & Cultural Celebrations</title>
+    <meta name="description" content="Discover upcoming festivals, cultural events, campus celebrations, and unforgettable experiences with UtsavFest.">
+    <meta name="keywords" content="UtsavFest, festivals, cultural events, campus celebrations, student events, celebration calendar, university festivals">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#7c3aed">
+    <link rel="canonical" href="https://www.utsavfest.com/">
+    <meta property="og:title" content="UtsavFest | Festival Calendar, Events & Cultural Celebrations">
+    <meta property="og:description" content="Explore vibrant festivals, cultural events, and campus experiences across India and beyond.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.utsavfest.com/">
+    <meta property="og:image" content="https://www.utsavfest.com/image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="UtsavFest | Festival Calendar, Events & Cultural Celebrations">
+    <meta name="twitter:description" content="Find upcoming celebrations and campus events at UtsavFest.">
+    <link href="fest.css" rel="stylesheet">
+    <link href="/responsive-images.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "UtsavFest",
+      "url": "https://www.utsavfest.com/",
+      "description": "Festival calendar, event discovery, and cultural celebration platform for students and communities.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.utsavfest.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+</head>
+<body class="home-page">
+    
+    <!-- nav bar -->
+
+     <nav>
+        <a class="logo" href="/fest.html">
+            <img src="/image.png" alt="UtsavFest logo">
+            <span>UtsavFest</span>
+        </a>
+        <button class="mobile-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+        <div class="nav-links">
+            <a href="/calendar">Calendar</a>
+            <a href="/explore">Explore</a>
+            <a href="/destinations">Destinations</a>
+            <a href="/about">About Us</a>
+        </div>
+        <div class="nav-actions">
+            <% if (user) { %>
+                <a href="/">Dashboard</a>
+                <a href="/logout">Log out</a>
+            <% } else { %>
+                <a href="/login">Sign In</a>
+            <% } %>
+        </div>
+    </nav>
+
+    
+     
+    <header class="hero">
+        <h1>Celebrate the night Under the Sky</h1>
+        <p>Discover, track, and experience the most vibrant festivals and events across the globe.</p>
+        
+        <div class="search-box">
+            <input id="event-search" type="search" placeholder="Search for Holi, Carnival, Oktoberfest..." aria-label="Search festivals">
+            <button id="search-button" type="button">
+                <span>Explore Now</span>
+                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </button>
+        </div>
+    </header>
+
+     <!-- Happening Soon Section -->
+    <section id="upcoming-events" class="section-container">
+        <h2 class="section-title">Upcoming Celebrations</h2>
+        <div class="carousel">
+            <% festivals.forEach((festival) => { %>
+                <a class="card" href="/festival/<%= encodeURIComponent(festival.id || festivalModel.getFestivalSlug(festival)) %>" data-event-search="<%= festival.name %> <%= festival.location %>" data-event-description="<%= festival.description || '' %>" data-event-date="<%= festival.date || 'Date to be announced' %>" aria-label="View details for <%= festival.name %>">
+                    <div class="card-img" style="background-image: url('<%= festival.image %>');"></div>
+                    <div class="date-badge"><%= festival.date %></div>
+                    <div class="card-content">
+                        <h3><%= festival.name %></h3>
+                        <p><i class="fa-solid fa-location-dot"></i> <%= festival.location %></p>
+                    </div>
+                </a>
+            <% }); %>
+        </div>
+        <p id="no-events" hidden>No events found. Try another search.</p>
+    </section>
+
+    <dialog class="event-dialog" id="event-dialog" aria-labelledby="event-dialog-title">
+        <div class="event-dialog-panel">
+            <button class="event-dialog-close" type="button" aria-label="Close event details" autofocus><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            <div class="event-dialog-image-wrap">
+                <img id="event-dialog-image" src="" alt="">
+            </div>
+            <div class="event-dialog-content">
+                <p class="event-dialog-date" id="event-dialog-date"></p>
+                <h2 id="event-dialog-title"></h2>
+                <p class="event-dialog-location" id="event-dialog-location"></p>
+                <p class="event-dialog-description" id="event-dialog-description"></p>
+                <a class="event-dialog-link" id="event-dialog-link" href="#">View full event details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </dialog>
+
+    
+    <!-- Categories Section -->
+     
+    <section class="section-container">
+        <h2 class="section-title">Find Your Vibe</h2>
+        <div class="categories-grid">
+            
+            <div class="category-tile">
+                <i class="fa-solid fa-hands-praying"></i>
+                <h3>Cultural & Traditional</h3>
+            </div>
+
+            <div class="category-tile">
+                <i class="fa-solid fa-guitar"></i>
+                <h3>Music & Arts</h3>
+            </div>
+
+            <div class="category-tile">
+                <i class="fa-solid fa-utensils"></i>
+                <h3>Food & Wine</h3>
+            </div>
+
+            <div class="category-tile">
+                <i class="fa-solid fa-masks-theater"></i>
+                <h3>Carnivals</h3>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <img src="/image.png" alt="UtsavFest logo">
+                <h4>UtsavFest</h4>
+                <p>Your ultimate guide to global celebrations and cultural events.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Discover</h4>
+                <ul>
+                    <li><a href="/calendar">Monthly Calendar</a></li>
+                    <li><a href="/explore">Explore Festivals</a></li>
+                    <li><a href="/destinations">Destinations</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 UtsavFest. All rights reserved.</p>
+            <div class="social-icons">
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+<script>
+    (() => { const nav = document.querySelector('nav'); const toggle = nav?.querySelector('.mobile-nav-toggle'); if (!nav || !toggle) return; toggle.addEventListener('click', () => { const open = nav.classList.toggle('mobile-nav-open'); toggle.setAttribute('aria-expanded', String(open)); toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation'); toggle.innerHTML = `<i class="fa-solid ${open ? 'fa-xmark' : 'fa-bars'}"></i>`; }); nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => nav.classList.remove('mobile-nav-open'))); })();
+</script>
+<script>
+    const searchInput = document.querySelector('#event-search');
+    const searchButton = document.querySelector('#search-button');
+    const eventCards = document.querySelectorAll('[data-event-search]');
+    const noEventsMessage = document.querySelector('#no-events');
+    const eventDialog = document.querySelector('#event-dialog');
+    const dialogImage = document.querySelector('#event-dialog-image');
+    const dialogDate = document.querySelector('#event-dialog-date');
+    const dialogTitle = document.querySelector('#event-dialog-title');
+    const dialogLocation = document.querySelector('#event-dialog-location');
+    const dialogDescription = document.querySelector('#event-dialog-description');
+    const dialogLink = document.querySelector('#event-dialog-link');
+
+    eventCards.forEach((card) => {
+        card.addEventListener('click', (event) => {
+            event.preventDefault();
+            const cardImage = card.querySelector('.card-img');
+            const imageUrl = cardImage ? getComputedStyle(cardImage).backgroundImage.slice(5, -2) : '';
+
+            dialogImage.src = imageUrl;
+            dialogImage.alt = `${card.querySelector('h3').textContent.trim()} celebration`;
+            dialogDate.textContent = card.dataset.eventDate;
+            dialogTitle.textContent = card.querySelector('h3').textContent.trim();
+            dialogLocation.textContent = card.querySelector('.card-content p').textContent.trim();
+            dialogDescription.textContent = card.dataset.eventDescription || 'More event information will be announced soon.';
+            dialogLink.href = card.href;
+            eventDialog.showModal();
+        });
+    });
+
+    eventDialog.querySelector('.event-dialog-close').addEventListener('click', () => eventDialog.close());
+    eventDialog.addEventListener('click', (event) => {
+        if (event.target === eventDialog) eventDialog.close();
+    });
+
+    function filterEvents() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        let visibleEvents = 0;
+
+        eventCards.forEach((card) => {
+            const eventText = card.dataset.eventSearch.toLowerCase();
+            const isMatch = eventText.includes(searchTerm);
+            card.hidden = !isMatch;
+            if (isMatch) {
+                visibleEvents += 1;
+            }
+        });
+
+        noEventsMessage.hidden = visibleEvents > 0;
+    }
+
+    searchButton.addEventListener('click', filterEvents);
+    searchInput.addEventListener('input', filterEvents);
+    searchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            filterEvents();
+        }
+    });
+</script>
+</html>

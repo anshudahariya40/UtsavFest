@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Festival Destinations | UtsavFest</title>
+    <meta name="description" content="Discover vibrant festival destinations, campus celebration spaces, and experience-rich venues for every occasion at UtsavFest.">
+    <meta name="keywords" content="festival destinations, campus venues, celebration spaces, cultural hotspots, event locations, student gathering places">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#7c3aed">
+    <link rel="canonical" href="https://www.utsavfest.com/destinations">
+    <meta property="og:title" content="Festival Destinations | UtsavFest">
+    <meta property="og:description" content="Find the celebration spaces where cultural events, music nights, and campus traditions come alive.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.utsavfest.com/destinations">
+    <meta property="og:image" content="https://www.utsavfest.com/image.png">
+    <link href="/destinations.css" rel="stylesheet">
+    <link href="/responsive-images.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <a class="logo" href="/fest.html">
+            <img src="/image.png" alt="UtsavFest logo">
+            <span>UtsavFest</span>
+        </a>
+        <button class="mobile-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+        <div class="nav-links">
+            <a href="/calendar">Calendar</a>
+            <a href="/explore">Explore</a>
+            <a class="active" href="/destinations">Destinations</a>
+            <a href="/about">About Us</a>
+        </div>
+        <div class="nav-actions">
+            <% if (user) { %>
+                <a href="/">Dashboard</a>
+                <a href="/logout">Log out</a>
+            <% } else { %>
+                <a href="/login">Sign In</a>
+                <!-- <a href="/register">Sign Up</a> -->
+            <% } %>
+        </div>
+    </nav>
+
+    <main>
+        <section class="destination-hero">
+            <p class="eyebrow">Find your next celebration</p>
+            <h1>Destinations made for gathering.</h1>
+            <p>From open-air grounds to lively campus spaces, discover the places where UtsavFest comes alive.</p>
+        </section>
+
+        <section class="destination-grid" aria-label="UtsavFest destinations">
+            <article class="destination-card">
+                <i class="fa-solid fa-building-columns"></i>
+                <h2>CPU Campus</h2>
+                <p>Meet, learn, and celebrate across a welcoming university campus in Chhattisgarh.</p>
+                <span>Learning & community</span>
+            </article>
+            <article class="destination-card">
+                <i class="fa-solid fa-music"></i>
+                <h2>Festival Grounds</h2>
+                <p>Feel the energy of music, lights, food, and cultural performances under the open sky.</p>
+                <span>Music & culture</span>
+            </article>
+            <article class="destination-card">
+                <i class="fa-solid fa-people-group"></i>
+                <h2>Community Spaces</h2>
+                <p>Find joyful gatherings where students, artists, and communities share traditions together.</p>
+                <span>People & traditions</span>
+            </article>
+        </section>
+
+        <section class="destination-gallery">
+            <div class="gallery-copy">
+                <p class="eyebrow">See the atmosphere</p>
+                <h2>Every place has a story.</h2>
+                <p>Explore the spaces where students connect, perform, and celebrate together. Choose a photo or let the gallery move through each destination automatically.</p>
+            </div>
+            <div class="slideshow" aria-label="Destination gallery">
+                <div class="slide active"><img src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=85" alt="University building surrounded by greenery"></div>
+                <div class="slide"><img src="https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1200&q=85" alt="Crowd enjoying a colorful live event"></div>
+                <div class="slide"><img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=85" alt="People celebrating at a night festival"></div>
+                <button class="slide-control previous" type="button" aria-label="Previous image">&#10094;</button>
+                <button class="slide-control next" type="button" aria-label="Next image">&#10095;</button>
+                <div class="slide-dots" role="tablist" aria-label="Choose destination image">
+                    <button class="slide-dot active" type="button" role="tab" aria-label="Show image 1"></button>
+                    <button class="slide-dot" type="button" role="tab" aria-label="Show image 2"></button>
+                    <button class="slide-dot" type="button" role="tab" aria-label="Show image 3"></button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <img src="/image.png" alt="UtsavFest logo">
+                <h4>UtsavFest</h4>
+                <p>Your ultimate guide to global celebrations and cultural events.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Discover</h4>
+                <ul>
+                    <a href="/calendar">Monthly Calendar</a>
+                    <br>
+                    <a href="/explore">Explore Festivals</a>
+                    <br>
+
+                    <a href="/destinations">Destinations</a>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <a href="/about">About Us</a>
+                    <br>
+
+                    <a href="#">FAQ</a>
+                    <br>
+
+                    <a href="#">Privacy Policy</a>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 UtsavFest. All rights reserved.</p>
+            <div class="social-icons">
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.slide-dot');
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            currentSlide = (index + slides.length) % slides.length;
+            slides.forEach((slide, slideIndex) => slide.classList.toggle('active', slideIndex === currentSlide));
+            dots.forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === currentSlide));
+        }
+
+        document.querySelector('.previous').addEventListener('click', () => showSlide(currentSlide - 1));
+        document.querySelector('.next').addEventListener('click', () => showSlide(currentSlide + 1));
+        dots.forEach((dot, dotIndex) => dot.addEventListener('click', () => showSlide(dotIndex)));
+        setInterval(() => showSlide(currentSlide + 1), 5000);
+    </script>
+</body>
+<script>
+    (() => { const nav = document.querySelector('nav'); const toggle = nav?.querySelector('.mobile-nav-toggle'); if (!nav || !toggle) return; toggle.addEventListener('click', () => { const open = nav.classList.toggle('mobile-nav-open'); toggle.setAttribute('aria-expanded', String(open)); toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation'); toggle.innerHTML = `<i class="fa-solid ${open ? 'fa-xmark' : 'fa-bars'}"></i>`; }); nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => nav.classList.remove('mobile-nav-open'))); })();
+</script>
+</html>

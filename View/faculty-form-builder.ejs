@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= existingForm ? 'Edit form' : 'Form builder' %> | UtsavFest</title>
+    <link href="/fest.css" rel="stylesheet">
+    <link href="/responsive-images.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .faculty-form-builder-layout { max-width: 1100px; }
+        .faculty-form-builder-header { align-items: center; display: flex; gap: 24px; justify-content: space-between; }
+        .faculty-form-builder-header .dashboard-heading { margin-bottom: 0; }
+        body.faculty-form-builder-page .dashboard-form-builder-card { background: linear-gradient(145deg, #f7f9fc, #edf2f7); border: 1px solid #d8e1eb; border-left: 4px solid #3f9278; border-radius: 12px; box-shadow: 0 18px 42px rgba(3, 10, 21, 0.28); color: #17283d; grid-column: 1 / -1; }
+        body.faculty-form-builder-page .dashboard-form-builder-card .dashboard-card-heading h2 { color: #17283d; }
+        body.faculty-form-builder-page .dashboard-form-builder-card .dashboard-label { color: #28735e !important; letter-spacing: 0; }
+        body.faculty-form-builder-page .dashboard-form-builder-card .auth-field { color: #34465c; font-weight: 600; }
+        body.faculty-form-builder-page .custom-form-builder .auth-field input,
+        body.faculty-form-builder-page .custom-form-builder .auth-field textarea,
+        body.faculty-form-builder-page .custom-question-label,
+        body.faculty-form-builder-page .custom-option-input,
+        body.faculty-form-builder-page .custom-question-type { background: #fff; border: 1px solid #c8d4e1; border-radius: 6px; color: #17283d; }
+        body.faculty-form-builder-page .custom-form-builder .auth-field input,
+        body.faculty-form-builder-page .custom-form-builder .auth-field textarea { font: inherit; padding: 12px 13px; width: 100%; }
+        body.faculty-form-builder-page .custom-form-builder .auth-field input { min-height: 46px; }
+        body.faculty-form-builder-page .custom-form-builder .auth-field textarea { min-height: 100px; resize: vertical; }
+        body.faculty-form-builder-page .custom-form-builder input:focus-visible,
+        body.faculty-form-builder-page .custom-form-builder textarea:focus-visible,
+        body.faculty-form-builder-page .custom-form-builder select:focus-visible { border-color: #32836b; box-shadow: 0 0 0 3px rgba(50, 131, 107, 0.16); outline: none; }
+        body.faculty-form-builder-page .custom-question-row { background: #fff; border: 1px solid #d5dfe9; border-left: 3px solid #d5a33a; border-radius: 8px; box-shadow: 0 5px 14px rgba(25, 42, 62, 0.06); color: #27384d; }
+        body.faculty-form-builder-page .custom-question-number { color: #28735e; }
+        body.faculty-form-builder-page .custom-question-options { align-items: center; flex-wrap: wrap; }
+        body.faculty-form-builder-page .custom-required,
+        body.faculty-form-builder-page .custom-access-option { color: #34465c; }
+        body.faculty-form-builder-page .custom-required input,
+        body.faculty-form-builder-page .custom-access-option input { accent-color: #32836b; }
+        body.faculty-form-builder-page .custom-option-marker { color: #738398; }
+        body.faculty-form-builder-page .correct-answer-choice { align-items: center; color: #28735e; display: inline-flex; font-size: 0.82rem; gap: 5px; white-space: nowrap; }
+        body.faculty-form-builder-page .correct-answer-choice input { accent-color: #32836b; }
+        body.faculty-form-builder-page .add-answer-option { color: #28735e; }
+        body.faculty-form-builder-page .remove-question,
+        body.faculty-form-builder-page .remove-option { color: #b64c55; }
+        body.faculty-form-builder-page .custom-form-countdown { color: #52657a; }
+        body.faculty-form-builder-page .custom-form-countdown.countdown-live { color: #28735e; }
+        body.faculty-form-builder-page .custom-form-countdown.countdown-closed { color: #b64c55; }
+        body.faculty-form-builder-page .custom-form-status { color: #28735e !important; }
+        body.faculty-form-builder-page .dashboard-form-builder-card .dashboard-button:not(.dashboard-button-outline):not(.dashboard-button-muted):not(.dashboard-button-danger) { background: #28735e; border: 1px solid #28735e; border-radius: 6px; color: #fff; }
+        body.faculty-form-builder-page .dashboard-form-builder-card .dashboard-button:not(.dashboard-button-outline):not(.dashboard-button-muted):not(.dashboard-button-danger):hover { background: #1d5e4c; border-color: #1d5e4c; }
+        body.faculty-form-builder-page .dashboard-form-builder-card .dashboard-button-outline { background: #fff; border: 1px solid #32836b; border-radius: 6px; color: #246b56; }
+        body.faculty-form-builder-page .dashboard-form-builder-card .dashboard-button-outline:hover { background: #e9f3ef; }
+        body.faculty-form-builder-page .dashboard-form-builder-card .dashboard-button-muted { background: #25364b; border: 1px solid #25364b; border-radius: 6px; color: #fff; }
+        body.faculty-form-builder-page .dashboard-form-builder-card .dashboard-button-muted:hover { background: #17283d; }
+        body.faculty-form-builder-page .dashboard-form-builder-card .dashboard-button-danger { border-radius: 6px; }
+        .faculty-form-builder-actions { align-items: center; border-top: 1px solid #d5dfe9; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-top: 20px; padding-top: 18px; }
+        .faculty-form-builder-actions .dashboard-button { margin-top: 0; }
+        .hidden { display: none !important; }
+        .custom-form-preview-content { background: #f7f9fc; border: 1px solid #d5dfe9; border-radius: 10px; color: #27384d; }
+        .custom-form-preview-content h3 { color: #17283d; }
+        .custom-form-preview-content > p:not(.dashboard-label) { color: #52657a; }
+        .custom-form-preview-content .dashboard-label { color: #28735e; }
+        .preview-option { color: #34465c; }
+        @media (max-width: 700px) {
+            .faculty-form-builder-header { align-items: flex-start; flex-direction: column; }
+            .faculty-form-builder-header > .dashboard-button { width: 100%; }
+        }
+    </style>
+</head>
+<body class="dashboard-page faculty-form-builder-page">
+    <nav>
+        <a class="logo" href="/fest.html">
+            <img src="/image.png" alt="UtsavFest logo">
+            <span>UtsavFest</span>
+        </a>
+        <button class="mobile-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+        <div class="nav-links">
+            <a href="/calendar">Calendar</a>
+            <a href="/explore">Explore</a>
+            <a href="/destinations">Destinations</a>
+            <a href="/about">About Us</a>
+        </div>
+        <div class="nav-actions">
+            <a href="/">Dashboard</a>
+            <a href="/logout">Log out</a>
+        </div>
+    </nav>
+
+    <main class="dashboard-layout faculty-form-builder-layout">
+        <section class="dashboard-hero faculty-form-builder-header">
+            <div class="dashboard-heading">
+                <p class="dashboard-kicker"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Faculty workspace</p>
+                <h1><%= existingForm ? 'Edit your form' : 'Build a student form' %></h1>
+                <p>Create a registration, feedback, or quiz form for your students.</p>
+            </div>
+            <a class="dashboard-button dashboard-button-outline" href="/">Back to dashboard</a>
+        </section>
+
+        <section class="dashboard-grid" aria-label="Form builder">
+            <article class="dashboard-card dashboard-form-builder-card">
+                <div class="dashboard-card-heading">
+                    <div class="dashboard-icon dashboard-icon-gold"><i class="fa-solid fa-list-check" aria-hidden="true"></i></div>
+                    <div>
+                        <p class="dashboard-label"><%= existingForm ? 'Update your form' : 'New student form' %></p>
+                        <h2>Form details</h2>
+                    </div>
+                </div>
+
+                <form id="custom-form-builder" class="custom-form-builder">
+                    <label class="auth-field">
+                        Form title
+                        <input id="custom-form-title" name="title" type="text" placeholder="e.g. Cultural fest registration" required>
+                    </label>
+
+                    <label class="auth-field">
+                        Description
+                        <textarea id="custom-form-description" name="description" rows="3" placeholder="Tell students what this form is for"></textarea>
+                    </label>
+
+                    <div class="custom-time-fields">
+                        <label class="auth-field">
+                            Starting time
+                            <input id="custom-form-start-at" name="startAt" type="datetime-local" required>
+                        </label>
+                        <label class="auth-field">
+                            Ending time
+                            <input id="custom-form-end-at" name="endAt" type="datetime-local" required>
+                        </label>
+                    </div>
+                    <label class="custom-access-option"><input id="custom-form-student-access" type="checkbox" checked> Show this form in the student dashboard</label>
+                    <label class="custom-access-option"><input id="custom-form-auto-grade" type="checkbox"> Make this an auto-scored quiz</label>
+                    <small class="custom-form-countdown">Use the separate teacher answer box under any question to reveal your answer after students submit.</small>
+                    <small id="custom-form-countdown" class="custom-form-countdown">Choose a starting and ending time.</small>
+
+                    <div class="custom-form-questions" id="custom-form-questions"></div>
+
+                    <div class="custom-form-actions">
+                        <button id="add-form-question" class="dashboard-button dashboard-button-outline" type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add question</button>
+                        <button id="preview-custom-form" class="dashboard-button dashboard-button-muted" type="button"><i class="fa-solid fa-eye" aria-hidden="true"></i> Preview</button>
+                    </div>
+                    <p id="custom-form-status" class="custom-form-status" aria-live="polite"></p>
+                    <div class="faculty-form-builder-actions">
+                        <a class="dashboard-button dashboard-button-outline" href="/">Cancel</a>
+                        <% if (existingForm) { %>
+                            <button id="delete-custom-form" class="dashboard-button dashboard-button-danger" type="button"><i class="fa-solid fa-trash" aria-hidden="true"></i> Delete form</button>
+                        <% } %>
+                        <button class="dashboard-button" type="submit"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> <%= existingForm ? 'Update form' : 'Save form' %></button>
+                    </div>
+                </form>
+            </article>
+        </section>
+    </main>
+
+    <div id="custom-form-preview" class="event-popup hidden" aria-hidden="true">
+        <div class="event-popup-content custom-form-preview-content">
+            <button id="close-custom-form-preview" class="preview-close" type="button" aria-label="Close preview"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            <p class="dashboard-label">Student preview</p>
+            <h3 id="preview-form-title">Untitled form</h3>
+            <p id="preview-form-description"></p>
+            <div id="preview-form-questions" class="preview-form-questions"></div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <img src="/image.png" alt="UtsavFest logo">
+                <h4>UtsavFest</h4>
+                <p>Your ultimate guide to global celebrations and cultural events.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Discover</h4>
+                <ul>
+                    <li><a href="/calendar">Monthly Calendar</a></li>
+                    <li><a href="/explore">Explore Festivals</a></li>
+                    <li><a href="/destinations">Destinations</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/">Faculty dashboard</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2026 UtsavFest. All rights reserved.</p></div>
+    </footer>
+
+    <script id="initial-form-data" type="application/json"><%- JSON.stringify(existingForm || null).replace(/</g, '\\u003c') %></script>
+    <script>
+        (() => {
+            const nav = document.querySelector('nav');
+            const toggle = nav?.querySelector('.mobile-nav-toggle');
+            if (!nav || !toggle) return;
+            toggle.addEventListener('click', () => {
+                const open = nav.classList.toggle('mobile-nav-open');
+                toggle.setAttribute('aria-expanded', String(open));
+                toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+                toggle.innerHTML = `<i class="fa-solid ${open ? 'fa-xmark' : 'fa-bars'}" aria-hidden="true"></i>`;
+            });
+            nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => nav.classList.remove('mobile-nav-open')));
+        })();
+    </script>
+    <script>
+        const customFormBuilder = document.getElementById('custom-form-builder');
+        const customFormQuestions = document.getElementById('custom-form-questions');
+        const customFormStatus = document.getElementById('custom-form-status');
+        const customFormPreview = document.getElementById('custom-form-preview');
+        const autoGradeInput = document.getElementById('custom-form-auto-grade');
+        const initialForm = JSON.parse(document.getElementById('initial-form-data').textContent || 'null');
+        const teacherEditFormState = { formId: initialForm?.id || null, isEditMode: Boolean(initialForm) };
+        let customQuestionSequence = 0;
+
+        function escapeAttribute(value) {
+            return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function escapeHtml(value) {
+            return escapeAttribute(value).replace(/'/g, '&#039;');
+        }
+
+        function createQuestionRow(question = {}) {
+            const row = document.createElement('div');
+            row.className = 'custom-question-row';
+            row.dataset.questionKey = `question-${customQuestionSequence++}`;
+            row.innerHTML = `
+                <div class="custom-question-topline">
+                    <span class="custom-question-number"></span>
+                    <button class="remove-question" type="button" aria-label="Remove question"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
+                </div>
+                <input class="custom-question-label" type="text" placeholder="Question" value="${escapeAttribute(question.label || '')}" required>
+                <div class="custom-question-options">
+                    <select class="custom-question-type" aria-label="Question type">
+                        <option value="short-answer" ${question.type === 'short-answer' ? 'selected' : ''}>Short answer</option>
+                        <option value="paragraph" ${question.type === 'paragraph' ? 'selected' : ''}>Paragraph</option>
+                        <option value="multiple-choice" ${question.type === 'multiple-choice' ? 'selected' : ''}>Multiple choice</option>
+                        <option value="checkboxes" ${question.type === 'checkboxes' ? 'selected' : ''}>Checkboxes</option>
+                    </select>
+                    <label class="custom-required"><input class="custom-question-required" type="checkbox" ${question.required ? 'checked' : ''}> Required</label>
+                </div>
+                <div class="custom-answer-options ${question.type === 'multiple-choice' || question.type === 'checkboxes' ? '' : 'hidden'}">
+                    <div class="custom-options-list"></div>
+                    <button class="add-answer-option" type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add option</button>
+                </div>`;
+            const teacherAnswerField = document.createElement('label');
+            teacherAnswerField.className = 'auth-field custom-teacher-answer-field';
+            teacherAnswerField.innerHTML = 'Teacher answer (shown after student submits)<textarea class="custom-teacher-answer-input" rows="2" placeholder="Write the answer or explanation students should see after submission"></textarea>';
+            teacherAnswerField.querySelector('.custom-teacher-answer-input').value = question.teacherAnswer || '';
+            row.appendChild(teacherAnswerField);
+            row.querySelector('.remove-question').addEventListener('click', () => {
+                row.remove();
+                updateQuestionNumbers();
+            });
+            row.querySelector('.custom-question-type').addEventListener('change', (event) => {
+                const isChoiceQuestion = event.target.value === 'multiple-choice' || event.target.value === 'checkboxes';
+                row.querySelector('.custom-answer-options').classList.toggle('hidden', !isChoiceQuestion);
+                if (isChoiceQuestion && !row.querySelectorAll('.custom-option-input').length) {
+                    renderOptionInputs(row, ['Option 1', 'Option 2']);
+                }
+                updateOptionMarkers(row, event.target.value);
+                updateCorrectAnswerControls(row);
+            });
+            row.querySelector('.add-answer-option').addEventListener('click', () => addOptionInput(row));
+            customFormQuestions.appendChild(row);
+            if (question.type === 'multiple-choice' || question.type === 'checkboxes') {
+                renderOptionInputs(row, question.options?.length ? question.options : ['Option 1', 'Option 2'], question.correctAnswers || []);
+                updateOptionMarkers(row, question.type);
+            }
+            updateCorrectAnswerControls(row);
+            updateQuestionNumbers();
+        }
+
+        function addOptionInput(row, value = '', isCorrect = false) {
+            const optionRow = document.createElement('div');
+            optionRow.className = 'custom-option-row';
+            optionRow.innerHTML = `
+                <span class="custom-option-marker"><i class="fa-regular fa-circle"></i></span>
+                <input class="custom-option-input" type="text" placeholder="Option" value="${escapeAttribute(value)}">
+                <label class="correct-answer-choice"><input class="correct-answer-input" type="radio" name="${row.dataset.questionKey}" ${isCorrect ? 'checked' : ''}> Correct</label>
+                <button class="remove-option" type="button" aria-label="Remove option"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`;
+            optionRow.querySelector('.remove-option').addEventListener('click', () => optionRow.remove());
+            row.querySelector('.custom-options-list').appendChild(optionRow);
+            updateCorrectAnswerControls(row);
+        }
+
+        function renderOptionInputs(row, options, correctAnswers = []) {
+            row.querySelector('.custom-options-list').innerHTML = '';
+            options.forEach((option) => addOptionInput(row, option, correctAnswers.includes(option)));
+        }
+
+        function updateOptionMarkers(row, questionType) {
+            const iconClass = questionType === 'checkboxes' ? 'fa-square' : 'fa-circle';
+            row.querySelectorAll('.custom-option-marker i').forEach((icon) => {
+                icon.className = `fa-regular ${iconClass}`;
+            });
+        }
+
+        function getQuestionOptions(row) {
+            return [...row.querySelectorAll('.custom-option-input')]
+                .map((input) => input.value.trim())
+                .filter(Boolean);
+        }
+
+        function updateCorrectAnswerControls(row) {
+            const questionType = row.querySelector('.custom-question-type').value;
+            const isChoiceQuestion = ['multiple-choice', 'checkboxes'].includes(questionType);
+            const allowCorrectAnswers = autoGradeInput.checked && isChoiceQuestion;
+            row.querySelectorAll('.correct-answer-choice').forEach((choice) => {
+                choice.classList.toggle('hidden', !allowCorrectAnswers);
+                const input = choice.querySelector('.correct-answer-input');
+                input.type = questionType === 'checkboxes' ? 'checkbox' : 'radio';
+                input.name = row.dataset.questionKey;
+            });
+        }
+
+        function updateQuestionNumbers() {
+            customFormQuestions.querySelectorAll('.custom-question-row').forEach((row, index) => {
+                row.querySelector('.custom-question-number').textContent = `Question ${index + 1}`;
+            });
+        }
+
+        function collectCustomForm() {
+            return {
+                title: document.getElementById('custom-form-title').value.trim(),
+                description: document.getElementById('custom-form-description').value.trim(),
+                startAt: document.getElementById('custom-form-start-at').value,
+                endAt: document.getElementById('custom-form-end-at').value,
+                visibleToStudents: document.getElementById('custom-form-student-access').checked,
+                autoGrade: autoGradeInput.checked,
+                questions: [...customFormQuestions.querySelectorAll('.custom-question-row')].map((row) => ({
+                    label: row.querySelector('.custom-question-label').value.trim(),
+                    type: row.querySelector('.custom-question-type').value,
+                    required: row.querySelector('.custom-question-required').checked,
+                    options: getQuestionOptions(row),
+                    teacherAnswer: row.querySelector('.custom-teacher-answer-input').value.trim(),
+                    correctAnswers: row.querySelector('.custom-question-type').value === 'short-answer'
+                        ? [row.querySelector('.custom-teacher-answer-input').value.trim()].filter(Boolean)
+                        : [...row.querySelectorAll('.custom-option-row')]
+                            .filter((optionRow) => optionRow.querySelector('.correct-answer-input').checked)
+                            .map((optionRow) => optionRow.querySelector('.custom-option-input').value.trim())
+                            .filter(Boolean)
+                }))
+            };
+        }
+
+        function renderCustomForm(form) {
+            document.getElementById('custom-form-title').value = form.title || '';
+            document.getElementById('custom-form-description').value = form.description || '';
+            document.getElementById('custom-form-start-at').value = form.startAt || form.publishAt || '';
+            document.getElementById('custom-form-end-at').value = form.endAt || '';
+            document.getElementById('custom-form-student-access').checked = form.visibleToStudents !== false;
+            autoGradeInput.checked = Boolean(form.autoGrade);
+            customFormQuestions.innerHTML = '';
+            (form.questions || []).forEach((question) => createQuestionRow({
+                ...question,
+                teacherAnswer: question.teacherAnswer || (form.autoGrade && question.type === 'short-answer'
+                    ? (Array.isArray(question.correctAnswers) ? question.correctAnswers[0] : question.correctAnswers)
+                    : ''),
+                correctAnswers: Array.isArray(question.correctAnswers) ? question.correctAnswers : [question.correctAnswers].filter(Boolean)
+            }));
+            if (!form.questions?.length) createQuestionRow();
+            updateCustomFormCountdown();
+        }
+
+        function updateCustomFormCountdown() {
+            const countdown = document.getElementById('custom-form-countdown');
+            const startInput = document.getElementById('custom-form-start-at');
+            const endInput = document.getElementById('custom-form-end-at');
+            if (!startInput.value || !endInput.value) {
+                countdown.textContent = 'Choose a starting and ending time.';
+                return;
+            }
+
+            const now = Date.now();
+            const startTime = new Date(startInput.value).getTime();
+            const endTime = new Date(endInput.value).getTime();
+            const remaining = startTime - now;
+            const formatRemaining = (milliseconds) => {
+                const totalMinutes = Math.floor(milliseconds / 60000);
+                const days = Math.floor(totalMinutes / 1440);
+                const hours = Math.floor((totalMinutes % 1440) / 60);
+                const minutes = totalMinutes % 60;
+                const parts = [];
+                if (days) parts.push(`${days} day${days === 1 ? '' : 's'}`);
+                if (hours) parts.push(`${hours} hour${hours === 1 ? '' : 's'}`);
+                if (minutes) parts.push(`${minutes} minute${minutes === 1 ? '' : 's'}`);
+                return parts.join(' ') || 'less than a minute';
+            };
+
+            if (now < startTime) {
+                countdown.textContent = `Starts in ${formatRemaining(remaining)}.`;
+                countdown.classList.remove('countdown-live', 'countdown-closed');
+            } else if (now >= endTime) {
+                countdown.textContent = 'This form is closed.';
+                countdown.classList.add('countdown-closed');
+                countdown.classList.remove('countdown-live');
+            } else {
+                countdown.textContent = `Live now. Ends in ${formatRemaining(endTime - now)}.`;
+                countdown.classList.add('countdown-live');
+                countdown.classList.remove('countdown-closed');
+            }
+        }
+
+        function showCustomFormPreview() {
+            const form = collectCustomForm();
+            document.getElementById('preview-form-title').textContent = form.title || 'Untitled form';
+            document.getElementById('preview-form-description').textContent = form.description;
+            document.getElementById('preview-form-questions').innerHTML = form.questions.map((question, index) => `
+                <label class="preview-question"><span>${index + 1}. ${escapeAttribute(question.label || 'Untitled question')}${question.required ? ' *' : ''}</span>
+                ${question.type === 'paragraph' ? '<textarea rows="3" disabled></textarea>' : question.type === 'multiple-choice' || question.type === 'checkboxes' ? question.options.map((option) => `<span class="preview-option"><input type="${question.type === 'multiple-choice' ? 'radio' : 'checkbox'}" disabled> ${escapeHtml(option)}</span>`).join('') : '<input type="text" disabled placeholder="Your answer">'}</label>`).join('');
+            customFormPreview.classList.remove('hidden');
+            customFormPreview.setAttribute('aria-hidden', 'false');
+        }
+
+        let savedDraft = {};
+        try {
+            savedDraft = JSON.parse(localStorage.getItem('utsavfest_teacher_form_draft') || '{}');
+        } catch (error) {
+            localStorage.removeItem('utsavfest_teacher_form_draft');
+        }
+        renderCustomForm(initialForm || savedDraft);
+        if (initialForm) customFormStatus.textContent = 'Editing existing form';
+
+        document.getElementById('add-form-question').addEventListener('click', () => createQuestionRow());
+        document.getElementById('preview-custom-form').addEventListener('click', showCustomFormPreview);
+        customFormBuilder.addEventListener('input', () => localStorage.setItem('utsavfest_teacher_form_draft', JSON.stringify(collectCustomForm())));
+        autoGradeInput.addEventListener('change', () => {
+            customFormQuestions.querySelectorAll('.custom-question-row').forEach(updateCorrectAnswerControls);
+        });
+        document.getElementById('custom-form-start-at').addEventListener('input', updateCustomFormCountdown);
+        document.getElementById('custom-form-end-at').addEventListener('input', updateCustomFormCountdown);
+        setInterval(updateCustomFormCountdown, 60000);
+
+        customFormBuilder.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = collectCustomForm();
+            if (!form.questions.length || form.questions.some((question) => !question.label)) {
+                customFormStatus.textContent = 'Add a label to every question before saving.';
+                return;
+            }
+            const choiceQuestionWithoutOptions = form.questions.find((question) => (question.type === 'multiple-choice' || question.type === 'checkboxes') && question.options.length < 2);
+            if (choiceQuestionWithoutOptions) {
+                customFormStatus.textContent = 'Add at least two answer options to every choice question.';
+                return;
+            }
+            if (form.autoGrade && (form.questions.some((question) => question.type === 'paragraph') ||
+                form.questions.some((question) => !question.correctAnswers.length))) {
+                customFormStatus.textContent = 'Auto-scored quizzes need an answer key for every short-answer or choice question.';
+                return;
+            }
+            if (!form.startAt || !form.endAt || Number.isNaN(new Date(form.startAt).getTime()) || Number.isNaN(new Date(form.endAt).getTime())) {
+                customFormStatus.textContent = 'Choose both a starting time and ending time.';
+                return;
+            }
+            if (new Date(form.endAt).getTime() <= new Date(form.startAt).getTime()) {
+                customFormStatus.textContent = 'Ending time must be after starting time.';
+                return;
+            }
+
+            const endpoint = teacherEditFormState.isEditMode ? '/edit-custom-form' : '/save-custom-form';
+            const payload = teacherEditFormState.isEditMode ? { ...form, formId: teacherEditFormState.formId } : form;
+            const submitButton = customFormBuilder.querySelector('[type="submit"]');
+            submitButton.disabled = true;
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (!result.success) {
+                    customFormStatus.textContent = result.message || 'Unable to save form.';
+                    return;
+                }
+                localStorage.removeItem('utsavfest_teacher_form_draft');
+                window.location.replace('/');
+            } catch (error) {
+                customFormStatus.textContent = 'Unable to save form. Check your connection and try again.';
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+
+        const closePreview = () => {
+            customFormPreview.classList.add('hidden');
+            customFormPreview.setAttribute('aria-hidden', 'true');
+        };
+        document.getElementById('close-custom-form-preview').addEventListener('click', closePreview);
+        customFormPreview.addEventListener('click', (event) => {
+            if (event.target === customFormPreview) closePreview();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closePreview();
+        });
+
+        document.getElementById('delete-custom-form')?.addEventListener('click', async (event) => {
+            if (!initialForm || !window.confirm('Delete this form? This action cannot be undone.')) return;
+            const deleteButton = event.currentTarget;
+            deleteButton.disabled = true;
+            customFormStatus.textContent = 'Deleting form...';
+            try {
+                const response = await fetch('/delete-custom-form', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ formId: initialForm.id })
+                });
+                const result = await response.json();
+                if (!result.success) {
+                    customFormStatus.textContent = result.message || 'Unable to delete form.';
+                    return;
+                }
+                window.location.assign('/');
+            } catch (error) {
+                customFormStatus.textContent = 'Unable to delete form. Check your connection and try again.';
+            } finally {
+                deleteButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "name": "utsavfest-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node Controller/server.js",
+    "test": "node Controller/otp-email.test.js",
+    "test:password-reset": "node --test Controller/password-reset.test.js Controller/password-reset-ui.test.js",
+    "test:admin-users": "node --test Controller/admin-user.test.js",
+    "test:faculty-approvals": "node --test Controller/faculty-approval.test.js",
+    "test:participation": "node --test Controller/participation.test.js",
+    "test:participation-excel": "node --test Controller/participation-excel.test.js",
+    "test:event-content": "node --test Controller/event-content.test.js Controller/event-report-ui.test.js Controller/winners-ui.test.js",
+    "test:load": "node scripts/load-test.js",
+    "db:migrate-participations": "node scripts/migrate-participations.js"
+  },
+  "dependencies": {
+    "archiver": "^5.3.2",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
+    "exceljs": "^4.4.0",
+    "init": "^0.1.2",
+    "mongoose": "^8.8.4",
+    "nodemailer": "^9.0.6",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^9.1.0",
+    "uuid": "^14.0.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^26.6.4"
+  }
+}

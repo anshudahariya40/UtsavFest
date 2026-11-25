@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f2f4ef">
+    <title>Add an Event | UtsavFest</title>
+    <link href="/fest.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { color-scheme: light; --ink: #17233c; --muted: #5a6476; --line: #dde4ee; --paper: #fff; --field: #f7f8fb; --coral: #e85d75; --navy: #17233c; --gold: #f4b942; --green: #17233c; }
+        body.event-editor { background: #f5f7fa; color: var(--ink); min-height: 100vh; }
+        .event-editor nav { background: var(--navy); }
+        .editor-shell { margin: 0 auto; max-width: 1120px; padding: 44px 28px 72px; }
+        .editor-topline { align-items: center; color: var(--muted); display: flex; font-size: .9rem; gap: 10px; margin-bottom: 30px; }
+        .editor-topline a { color: var(--navy); font-weight: 700; text-decoration: none; }
+        .editor-heading { border-bottom: 1px solid var(--line); margin-bottom: 28px; padding-bottom: 24px; }
+        .editor-eyebrow { color: var(--gold); font-size: .76rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+        .editor-heading h1 { color: var(--ink); font: 700 2.45rem/1.15 Poppins, sans-serif; margin: 8px 0; }
+        .editor-heading p { color: var(--muted); line-height: 1.6; margin: 0; max-width: 620px; }
+        .editor-layout { align-items: start; display: grid; gap: 24px; grid-template-columns: minmax(0, 1.45fr) minmax(270px, .8fr); }
+        .editor-form-panel, .event-preview { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; }
+        .editor-form-panel { padding: 30px; }
+        .form-section-title { align-items: center; display: flex; gap: 12px; margin: 0 0 24px; }
+        .form-section-icon { align-items: center; background: rgba(244, 185, 66, 0.14); border-radius: 7px; color: var(--navy); display: flex; height: 42px; justify-content: center; width: 42px; }
+        .form-section-title h2 { font: 600 1.05rem Poppins, sans-serif; margin: 0; }
+        .form-section-title p { color: var(--muted); font-size: .85rem; margin: 3px 0 0; }
+        .event-fields { display: grid; gap: 20px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .event-field { display: grid; gap: 8px; }
+        .event-field-wide { grid-column: 1 / -1; }
+        .event-field label { color: #39453d; font-size: .88rem; font-weight: 700; }
+        .event-field input, .event-field textarea { background: var(--field); border: 1px solid var(--line); border-radius: 5px; color: var(--ink); font: inherit; min-height: 48px; outline: none; padding: 0 13px; width: 100%; }
+        .event-field input:focus, .event-field textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(244, 185, 66, .12); }
+        .event-field input[type="file"] { align-items: center; padding: 8px; }
+        .event-field textarea { min-height: 100px; padding: 12px 13px; resize: vertical; }
+        .event-field small { color: var(--muted); font-size: .78rem; line-height: 1.5; }
+        .editor-actions { align-items: center; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; margin-top: 26px; padding-top: 22px; }
+        .editor-actions p { color: var(--muted); font-size: .82rem; margin: 0; }
+        .submit-event { background: var(--coral); border: 0; border-radius: 5px; color: white; cursor: pointer; font: 700 .92rem Inter, sans-serif; min-height: 46px; padding: 0 18px; }
+        .submit-event:hover { background: #bd4650; }
+        .submit-event:disabled { cursor: wait; opacity: .7; }
+        .event-preview { overflow: hidden; }
+        .preview-cover { align-items: center; background: #254a3e; color: #d9e8df; display: flex; height: 220px; justify-content: center; overflow: hidden; position: relative; }
+        .preview-cover::after { background: linear-gradient(180deg, transparent 48%, rgba(14, 31, 25, .82)); content: ''; inset: 0; position: absolute; }
+        .preview-cover img { height: 100%; object-fit: cover; position: absolute; width: 100%; }
+        .preview-cover i { font-size: 2rem; }
+        .preview-cover img:not([src=""]) ~ i { display: none; }
+        .preview-copy { padding: 22px; }
+        .preview-label { color: var(--coral); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+        .preview-copy h2 { font: 600 1.28rem/1.3 Poppins, sans-serif; margin: 8px 0 14px; overflow-wrap: anywhere; }
+        .preview-detail { align-items: center; color: var(--muted); display: flex; font-size: .88rem; gap: 10px; margin-top: 10px; overflow-wrap: anywhere; }
+        .preview-detail i { color: var(--navy); width: 16px; }
+        .form-status { color: var(--navy); font-size: .9rem; font-weight: 600; margin: 18px 0 0; min-height: 1.3em; }
+        .form-status.error { color: #b42332; }
+        @media (max-width: 760px) { .editor-shell { padding: 32px 18px 52px; } .editor-layout { grid-template-columns: 1fr; } .event-preview { grid-row: 1; } .preview-cover { height: 180px; } }
+        @media (max-width: 520px) { .editor-heading h1 { font-size: 1.9rem; } .editor-form-panel { padding: 22px 18px; } .event-fields { grid-template-columns: 1fr; } .event-field-wide { grid-column: auto; } .editor-actions { align-items: stretch; flex-direction: column; } .submit-event { width: 100%; } }
+    </style>
+</head>
+<body class="event-editor">
+    <nav>
+        <a class="logo" href="/fest.html"><img src="/image.png" alt="UtsavFest logo"><span>UtsavFest</span></a>
+        <div class="nav-actions"><a href="/">Dashboard</a><a href="/logout">Log out</a></div>
+    </nav>
+
+    <main class="editor-shell">
+        <div class="editor-topline"><a href="/">Dashboard</a><i class="fa-solid fa-chevron-right" aria-hidden="true"></i><span>New event</span></div>
+        <header class="editor-heading">
+                <span class="editor-eyebrow">Event coordinator workspace</span>
+            <h1>Bring your event to life.</h1>
+            <p>Add the essentials and give students a clear first look at what's happening on campus.</p>
+        </header>
+
+        <div class="editor-layout">
+            <section class="editor-form-panel" aria-labelledby="event-form-title">
+                <div class="form-section-title">
+                    <span class="form-section-icon"><i class="fa-regular fa-calendar-plus" aria-hidden="true"></i></span>
+                    <div><h2 id="event-form-title">Event details</h2><p>All fields are required except Notification.</p></div>
+                </div>
+                <form id="event-form" action="/add-event" method="post">
+                    <div class="event-fields">
+                        <div class="event-field event-field-wide">
+                            <label for="fest-name">Fest name</label>
+                            <input id="fest-name" name="festName" type="text" placeholder="e.g. Utsav 2026" maxlength="100" required>
+                        </div>
+                        <div class="event-field event-field-wide">
+                            <label for="event-name">Event name</label>
+                            <input id="event-name" name="eventName" type="text" placeholder="e.g. Campus Cultural Night" maxlength="100" required>
+                        </div>
+                        <div class="event-field">
+                            <label for="event-date">Event date</label>
+                            <input id="event-date" name="eventDate" type="date" required>
+                        </div>
+                        <div class="event-field">
+                            <label for="event-location">Venue</label>
+                            <input id="event-location" name="eventLocation" type="text" placeholder="Main auditorium" maxlength="120" required>
+                        </div>
+                        <div class="event-field">
+                            <label for="event-time">Time</label>
+                            <input id="event-time" name="time" type="time" required>
+                        </div>
+                        <div class="event-field">
+                            <label for="event-chief-guest">Chief guest</label>
+                            <input id="event-chief-guest" name="chiefGuest" type="text" maxlength="120" placeholder="Chief guest's name" required>
+                        </div>
+                        <div class="event-field event-field-wide">
+                            <label for="event-description">Small description</label>
+                            <textarea id="event-description" name="description" maxlength="500" rows="3" placeholder="Briefly describe the event" required></textarea>
+                        </div>
+                        <div class="event-field event-field-wide">
+                            <label for="event-image">Cover image</label>
+                            <input id="event-image" name="imageFile" type="file" accept="image/*" required>
+                            <small>Choose a clear photo or poster. Maximum file size: 5 MB.</small>
+                        </div>
+                        <div class="event-field event-field-wide">
+                            <label for="event-notification">Notification <span>(optional)</span></label>
+                            <textarea id="event-notification" name="notification" maxlength="500" rows="3" placeholder="Add a notice for attendees"></textarea>
+                            <small>This notice appears on the event details page.</small>
+                        </div>
+                    </div>
+                    <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+                    <div class="editor-actions">
+                        <p>Created by <strong><%= user.name || user.email %></strong></p>
+                        <button class="submit-event" id="submit-event" type="submit"><i class="fa-solid fa-plus" aria-hidden="true"></i> Create event</button>
+                    </div>
+                </form>
+            </section>
+
+            <aside class="event-preview" aria-label="Event preview">
+                <div class="preview-cover"><img id="preview-image" src="" alt=""><i class="fa-regular fa-image" aria-hidden="true"></i></div>
+                <div class="preview-copy">
+                    <span class="preview-label">Event preview</span>
+                    <p id="preview-fest" class="preview-detail">Your fest name</p>
+                    <h2 id="preview-name">Your event name</h2>
+                    <p class="preview-detail"><i class="fa-regular fa-calendar" aria-hidden="true"></i><span id="preview-date">Date will appear here</span></p>
+                    <p class="preview-detail"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span id="preview-location">Venue will appear here</span></p>
+                    <p class="preview-detail"><i class="fa-regular fa-clock" aria-hidden="true"></i><span id="preview-time">Time will appear here</span></p>
+                    <p class="preview-detail"><i class="fa-solid fa-user" aria-hidden="true"></i><span id="preview-guest">Chief guest will appear here</span></p>
+                    <p class="preview-detail" id="preview-description"></p>
+                    <p class="preview-detail" id="preview-notification"></p>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        const eventForm = document.querySelector('#event-form');
+        const eventDate = document.querySelector('#event-date');
+        const imageInput = document.querySelector('#event-image');
+        const statusMessage = document.querySelector('#form-status');
+        const submitButton = document.querySelector('#submit-event');
+        const previewImage = document.querySelector('#preview-image');
+        const today = new Date();
+        eventDate.min = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+        const previewFields = [
+            ['fest-name', 'preview-fest', 'Your fest name'],
+            ['event-time', 'preview-time', 'Time will appear here'],
+            ['event-chief-guest', 'preview-guest', 'Chief guest will appear here'],
+            ['event-description', 'preview-description', ''],
+            ['event-notification', 'preview-notification', '']
+        ];
+        previewFields.forEach(([inputId, previewId, placeholder]) => {
+            document.getElementById(inputId).addEventListener('input', (event) => {
+                document.getElementById(previewId).textContent = event.target.value.trim() || placeholder;
+            });
+        });
+
+        document.querySelector('#event-name').addEventListener('input', (event) => {
+            document.querySelector('#preview-name').textContent = event.target.value.trim() || 'Your event name';
+        });
+        eventDate.addEventListener('input', () => {
+            document.querySelector('#preview-date').textContent = eventDate.value
+                ? new Date(`${eventDate.value}T00:00:00`).toLocaleDateString(undefined, { dateStyle: 'long' })
+                : 'Date will appear here';
+        });
+        document.querySelector('#event-location').addEventListener('input', (event) => {
+            document.querySelector('#preview-location').textContent = event.target.value.trim() || 'Venue will appear here';
+        });
+        imageInput.addEventListener('change', () => {
+            const imageFile = imageInput.files[0];
+            if (!imageFile) {
+                previewImage.removeAttribute('src');
+                return;
+            }
+            if (imageFile.size > 5 * 1024 * 1024) {
+                imageInput.value = '';
+                statusMessage.textContent = 'Please choose an image smaller than 5 MB.';
+                statusMessage.classList.add('error');
+                previewImage.removeAttribute('src');
+                return;
+            }
+            statusMessage.textContent = '';
+            statusMessage.classList.remove('error');
+            previewImage.src = URL.createObjectURL(imageFile);
+        });
+
+        eventForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(eventForm);
+            const imageFile = formData.get('imageFile');
+            formData.delete('imageFile');
+
+            if (imageFile instanceof File && imageFile.size > 0) {
+                const imageData = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.addEventListener('load', () => resolve(reader.result));
+                    reader.addEventListener('error', reject);
+                    reader.readAsDataURL(imageFile);
+                });
+                formData.set('image', imageData);
+            }
+
+            const payload = new URLSearchParams(formData);
+            submitButton.disabled = true;
+            submitButton.textContent = 'Creating...';
+            statusMessage.textContent = '';
+            statusMessage.classList.remove('error');
+
+            try {
+                const response = await fetch('/add-event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: payload.toString()
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Unable to create the event.');
+                }
+                eventForm.reset();
+                previewFields.forEach(([, previewId, placeholder]) => {
+                    document.getElementById(previewId).textContent = placeholder;
+                });
+                previewImage.removeAttribute('src');
+                document.querySelector('#preview-name').textContent = 'Your event name';
+                document.querySelector('#preview-date').textContent = 'Date will appear here';
+                document.querySelector('#preview-location').textContent = 'Venue will appear here';
+                statusMessage.textContent = 'Event created successfully. It is now available to the community.';
+                window.alert('Event created successfully!');
+            } catch (error) {
+                statusMessage.textContent = error.message || 'Something went wrong. Please try again.';
+                statusMessage.classList.add('error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fa-solid fa-plus" aria-hidden="true"></i> Create event';
+            }
+        });
+    </script>
+</body>
+</html>

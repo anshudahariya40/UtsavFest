@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Festivals | UtsavFest</title>
+    <meta name="description" content="Explore vibrant campus festivals, community events, and cultural experiences with UtsavFest.">
+    <meta name="keywords" content="explore festivals, campus events, cultural celebrations, student festivals, university events">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#7c3aed">
+    <link rel="canonical" href="https://www.utsavfest.com/explore">
+    <meta property="og:title" content="Explore Festivals | UtsavFest">
+    <meta property="og:description" content="Discover the events, showcases, and campus experiences bringing communities together.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.utsavfest.com/explore">
+    <meta property="og:image" content="https://www.utsavfest.com/image.png">
+    <link href="/explore.css" rel="stylesheet">
+    <link href="/responsive-images.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- nav bar -->
+
+    <nav>
+        <a class="logo" href="/fest.html">
+            <img src="/image.png" alt="UtsavFest logo">
+            <span>UtsavFest</span>
+        </a>
+        <button class="mobile-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+        <div class="nav-links">
+            <a href="/calendar">Calendar</a>
+            <a href="/explore">Explore</a>
+            <a href="/destinations">Destinations</a>
+            <a href="/about">About Us</a>
+        </div>
+        <div class="nav-actions">
+            <% if (user) { %>
+                <a href="/">Dashboard</a>
+                <a href="/logout">Log out</a>
+                <% } else { %>
+                    <a href="/login">Sign In</a>
+                    <!-- <a href="/register">Sign Up</a> -->
+                    <% } %>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+
+        <aside class="panel" id="left-panel">
+            <div class="panel-subtitle" id="p-location">AWAITING SELECTION</div>
+            <h2 class="panel-title" id="p-title">Hover over<br>the Cube</h2>
+            <p class="panel-text" id="p-desc">Interact with the 3D interface in the center to reveal festival lineups,
+                global locations, and exclusive details.</p>
+
+            <ul class="lineup-list" id="p-lineup">
+            </ul>
+        </aside>
+
+        <main class="center-stage">
+            <div class="scene">
+                <div class="face front" data-title="Utsav Nights" data-loc="CIET GROUND"
+                    data-desc="A beautiful nignt full of lights, enjoyment ." data-lineup="Enjoyment, Fun, "
+                    data-date="OCT 14 - 16" data-price="Free">
+                    <div class="face-date">OCT 14</div>
+                    <div class="face-title">Utsav<br>Nights</div>
+                </div>
+
+                <div class="face back" data-title="Ganesh Utsav" data-loc="Ciet Admin"
+                    data-desc="come alive with glowing lights, vibrant community pandals, and the joyful sound of devotional music echoing through the streets."
+                    data-lineup="Rufus Du Sol, CamelPhat, Zhu" data-date="SEP 14 - 26" data-price="300 RS">
+                    <div class="face-date">SEP 14</div>
+                    <div class="face-title">Ganesh<br>Utsav</div>
+                </div>
+
+                <div class="face right" data-title="Garba Night" data-loc="Garba Night"
+                    data-desc="vibrant, energetic celebrations where communities gather to honor Goddess Durga through traditional circular folk dances and rhythmic music"
+                    data-lineup="Tale of Us, Stephan Bodzin, Jon Hopkins" data-date="OCT 15 - 16" data-price="100 RS">
+                    <div class="face-date">OCT 15</div>
+                    <div class="face-title">Garba<br>Nights</div>
+                </div>
+
+                <div class="face left" data-title="Teachers  Day" data-loc="Global auditorium"
+                    data-desc="“Teachers play a very important role in shaping students' lives. They help students gain knowledge, develop confidence and understand the difference between right and wrong.”"
+                    data-lineup="Black Coffee, Keinemusik, Bedouin" data-date="Sep 5" data-price="200 RS">
+                    <div class="face-date"> SEP 5</div>
+                    <div class="face-title">Teachers<br>Day</div>
+                </div>
+
+                <div class="face top" data-title="Independence Day" data-loc="Enginerring Ground"
+                    data-desc="India's freedom was won through years of struggle, unity, and unwavering hope. As noted in a reflection on the freedom struggle, “India's freedom was achieved through perseverance, unity and hope."
+                    data-lineup="Carl Cox, Fisher," data-date="15 Aug" data-price="Free">
+                    <div class="face-date">Aug 15</div>
+                    <div class="face-title">Independence<br>Day</div>
+                </div>
+
+                <div class="face bottom" data-title="Janmasthami" data-loc="Bus Ground"
+                    data-desc="Janmashtami inspires us to embrace righteousness, find joy in simplicity, and trust that good will always overcome adversity."
+                    data-lineup="Charlotte de Witte, Amelie Lens" data-date="SEP 3 - 5" data-price="200 Rs">
+                    <div class="face-date">SEP 3 - 5</div>
+                    <div class="face-title">Janmasthami</div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="panel" id="right-panel">
+            <div class="panel-subtitle">Event Status</div>
+            <h2 class="panel-title" id="p-date" style="font-size: 2rem; color: #fff;">--/--</h2>
+
+            <div style="border-top: 1px solid rgba(100,255,218,0.2); margin: 20px 0;"></div>
+
+            <p class="panel-subtitle">Starting From</p>
+            <h2 class="panel-title" id="p-price" style="font-size: 2.5rem;">$---</h2>
+
+            <button id="participate-button" class="btn-primary" style="margin-top: 20px;" type="button">Participate
+                Event</button>
+        </aside>
+
+    </div>
+
+    <section class="university-explore">
+        <div class="module-header">
+            <p class="eyebrow">University Explore</p>
+            <h3>Campus moments worth discovering</h3>
+        </div>
+
+        <div class="uni-grid">
+            <article class="uni-card">
+                <span class="tag">Campus Life</span>
+                <h4>Student Fest Week</h4>
+                <p>Live music, food stalls, and creative showcases designed for the university crowd.</p>
+            </article>
+
+            <article class="uni-card accent-uni-card">
+                <span class="tag">Popular Spots</span>
+                <h4>Hostel & Ground Events</h4>
+                <p>Discover the most active venues where clubs, contests, and celebrations happen every week.</p>
+            </article>
+
+            <article class="uni-card">
+                <span class="tag">Community</span>
+                <h4>Club & Cultural Hub</h4>
+                <p>Connect with student-led events, technical fests, and cultural nights across campus.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="campus-highlight">
+        <div class="campus-banner">
+            <div class="campus-copy">
+                <p class="eyebrow">More About University</p>
+                <h3>Where culture, creativity, and student energy meet</h3>
+                <p>From annual fests and sports days to club showcases and late-night gatherings, university life is full of moments that make campus unforgettable.</p>
+            </div>
+            <div class="campus-points">
+                <div>
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Weekly events</span>
+                </div>
+                <div>
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Competitions</span>
+                </div>
+                <div>
+                    <i class="fa-solid fa-music"></i>
+                    <span>Cultural nights</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const faces = document.querySelectorAll('.face');
+
+        // Left Panel Elements
+        const titleEl = document.getElementById('p-title');
+        const locEl = document.getElementById('p-location');
+        const descEl = document.getElementById('p-desc');
+        const lineupEl = document.getElementById('p-lineup');
+
+        // Right Panel Elements
+        const dateEl = document.getElementById('p-date');
+        const priceEl = document.getElementById('p-price');
+        const participateButton = document.getElementById('participate-button');
+        const loggedInUser = <%- JSON.stringify(user || null) %>;
+
+        participateButton.addEventListener('click', () => {
+            if (!loggedInUser) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (loggedInUser.role !== 'student') {
+                window.alert('Only students can participate in events.');
+                return;
+            }
+
+            window.location.href = '/#student-participation-form';
+        });
+
+        faces.forEach(face => {
+            face.addEventListener('mouseenter', (e) => {
+                // Fetch data from HTML attributes
+                const title = e.target.getAttribute('data-title');
+                const loc = e.target.getAttribute('data-loc');
+                const desc = e.target.getAttribute('data-desc');
+                const lineupStr = e.target.getAttribute('data-lineup');
+                const date = e.target.getAttribute('data-date');
+                const price = e.target.getAttribute('data-price');
+
+                // Update text
+                titleEl.innerHTML = title;
+                locEl.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${loc}`;
+                descEl.innerHTML = desc;
+                dateEl.innerHTML = date;
+                priceEl.innerHTML = price;
+
+                // Format the lineup string into a list
+                const artists = lineupStr.split(', ');
+                lineupEl.innerHTML = ''; // clear old list
+                artists.forEach(artist => {
+                    lineupEl.innerHTML += `<li><i class="fa-solid fa-music"></i> ${artist}</li>`;
+                });
+            });
+        });
+
+    </script>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <img src="/image.png" alt="UtsavFest logo">
+                <h4>UtsavFest</h4>
+                <p>Your ultimate guide to global celebrations and cultural events.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Discover</h4>
+                <ul>
+                    <li><a href="/calendar">Monthly Calendar</a></li>
+                    <li><a href="/explore">Explore Festivals</a></li>
+                    <li><a href="/destinations">Destinations</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 UtsavFest. All rights reserved.</p>
+            <div class="social-icons">
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+<script>
+    (() => { const nav = document.querySelector('nav'); const toggle = nav?.querySelector('.mobile-nav-toggle'); if (!nav || !toggle) return; toggle.addEventListener('click', () => { const open = nav.classList.toggle('mobile-nav-open'); toggle.setAttribute('aria-expanded', String(open)); toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation'); toggle.innerHTML = `<i class="fa-solid ${open ? 'fa-xmark' : 'fa-bars'}"></i>`; }); nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => nav.classList.remove('mobile-nav-open'))); })();
+</script>
+
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= festival.name %> | UtsavFest</title>
+    <meta name="description" content="<%= String(festival.description || 'Explore the details, date, venue, and celebration highlights for ' + festival.name + ' at UtsavFest.').slice(0, 160) %>">
+    <meta name="keywords" content="<%= festival.name %>, festival, event details, celebration, campus event, culture, venue">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#7c3aed">
+    <link rel="canonical" href="https://www.utsavfest.com/festival/<%= encodeURIComponent(festival.id || festivalModel.getFestivalSlug(festival)) %>">
+    <meta property="og:title" content="<%= festival.name %> | UtsavFest">
+    <meta property="og:description" content="<%= festival.description || 'Explore event details and celebration highlights for ' + festival.name + '.' %>">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://www.utsavfest.com/festival/<%= encodeURIComponent(festival.id || festivalModel.getFestivalSlug(festival)) %>">
+    <meta property="og:image" content="<%= festival.image || 'https://www.utsavfest.com/image.png' %>">
+    <meta name="twitter:card" content="summary_large_image">
+    <link href="/fest.css" rel="stylesheet">
+    <link href="/festival-detail.css" rel="stylesheet">
+    <link href="/responsive-images.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="application/ld+json">
+    <%- JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Event',
+      name: festival.name,
+      description: festival.description || 'Festival details and celebration highlights at UtsavFest.',
+      startDate: festival.date,
+      image: festival.image || 'https://www.utsavfest.com/image.png',
+      location: {
+        '@type': 'Place',
+        name: festival.location || 'UtsavFest venue',
+        address: festival.location || 'Campus venue'
+      },
+      url: 'https://www.utsavfest.com/festival/' + encodeURIComponent(festival.id || festivalModel.getFestivalSlug(festival))
+    }) %>
+    </script>
+</head>
+<body class="festival-detail-page">
+    <nav>
+        <a class="logo" href="/fest.html">
+            <img src="/image.png" alt="UtsavFest logo">
+            <span>UtsavFest</span>
+        </a>
+        <button class="mobile-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="detail-nav-links detail-nav-actions"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+        <div class="nav-links" id="detail-nav-links">
+            <a href="/calendar">Calendar</a>
+            <a href="/explore">Explore</a>
+            <a href="/destinations">Destinations</a>
+            <a href="/about">About Us</a>
+        </div>
+        <div class="nav-actions" id="detail-nav-actions">
+            <% if (user) { %>
+                <a href="/">Dashboard</a>
+                <a href="/logout">Log out</a>
+            <% } else { %>
+                <a href="/login">Sign In</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <main>
+        <%
+            const hasIsoDate = /^\d{4}-\d{2}-\d{2}$/.test(String(festival.date || ''));
+            const displayDate = hasIsoDate
+                ? new Date(`${festival.date}T00:00:00`).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                : festival.date || 'Date to be announced';
+        %>
+        <section class="festival-cover" aria-labelledby="festival-title">
+            <div class="festival-cover-content">
+                <a class="festival-back-link" href="/fest.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> All celebrations</a>
+                <p class="festival-eyebrow">Festival guide</p>
+                <h1 id="festival-title"><%= festival.name %></h1>
+                <p class="festival-cover-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <%= festival.location %></p>
+                <p class="festival-cover-description"><%= festival.description %></p>
+                <p class="festival-cover-date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> <%= displayDate %></p>
+                <a class="festival-return-link" href="/fest.html">Explore more celebrations <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+            <div class="festival-cover-visual">
+                <img class="festival-cover-image" src="<%= festival.image %>" alt="<%= festival.name %> celebration">
+            </div>
+        </section>
+
+        <section class="festival-details" aria-label="Festival information">
+            <aside class="festival-facts" aria-label="Event details">
+                <h2>Event details</h2>
+                <dl>
+                    <div class="festival-fact">
+                        <dt><i class="fa-regular fa-calendar" aria-hidden="true"></i> Date</dt>
+                        <dd><%= displayDate %></dd>
+                    </div>
+                    <div class="festival-fact">
+                        <dt><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Venue</dt>
+                        <dd><%= festival.location || 'Location to be announced' %></dd>
+                    </div>
+                    <div class="festival-fact">
+                        <dt><i class="fa-solid fa-ticket" aria-hidden="true"></i> Event</dt>
+                        <dd><%= festival.name %></dd>
+                    </div>
+                </dl>
+                <dl>
+                    <% if (festival.festName) { %>
+                    <div class="festival-fact"><dt>Fest</dt><dd><%= festival.festName %></dd></div>
+                    <% } %>
+                    <% if (festival.time) { %>
+                    <div class="festival-fact"><dt>Time</dt><dd><%= festival.time %></dd></div>
+                    <% } %>
+                    <% if (festival.chiefGuest) { %>
+                    <div class="festival-fact"><dt>Chief guest</dt><dd><%= festival.chiefGuest %></dd></div>
+                    <% } %>
+                    <% if (festival.notification) { %>
+                    <div class="festival-fact"><dt>Notification</dt><dd><%= festival.notification %></dd></div>
+                    <% } %>
+                </dl>
+                <p class="festival-note">Schedules and visitor information may change. Check with local organizers before you travel.</p>
+            </aside>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <img src="/image.png" alt="UtsavFest logo">
+                <h4>UtsavFest</h4>
+                <p>Your ultimate guide to global celebrations and cultural events.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Discover</h4>
+                <ul>
+                    <li><a href="/calendar">Monthly Calendar</a></li>
+                    <li><a href="/explore">Explore Festivals</a></li>
+                    <li><a href="/destinations">Destinations</a></li>
+                    <li><a href="/fest.html">All Celebrations</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/fest.html">Back to celebrations</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 UtsavFest. All rights reserved.</p>
+            <div class="social-icons">
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        (() => {
+            const nav = document.querySelector('.festival-detail-page nav');
+            const toggle = nav?.querySelector('.mobile-nav-toggle');
+            if (!nav || !toggle) return;
+
+            const setNavigationOpen = (open) => {
+                nav.classList.toggle('mobile-nav-open', open);
+                toggle.setAttribute('aria-expanded', String(open));
+                toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+                toggle.innerHTML = `<i class="fa-solid ${open ? 'fa-xmark' : 'fa-bars'}" aria-hidden="true"></i>`;
+            };
+
+            toggle.addEventListener('click', () => {
+                setNavigationOpen(!nav.classList.contains('mobile-nav-open'));
+            });
+            nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setNavigationOpen(false)));
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') setNavigationOpen(false);
+            });
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,543 @@
+<% const isAdminDashboardLogin = ['/admin-dashboard', '/admin-dashboard/students', '/admin-dashboard/events', '/admin-dashboard/approvals', '/admin-dashboard/participation', '/admin-dashboard/reports'].includes(returnTo); %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= authMode === 'register' ? 'Create Account' : 'Sign In' %> | UtsavFest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="/fest.css" rel="stylesheet">
+    <link href="/responsive-images.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="auth-page <%= authMode === 'login' ? 'auth-login' : 'auth-register' %>">
+    <nav>
+        <a class="logo" href="/fest.html">
+            <img src="/image.png" alt="UtsavFest logo">
+            <span>UtsavFest</span>
+        </a>
+        <button class="mobile-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+        <div class="nav-links">
+            <a href="/calendar">Calendar</a>
+            <a href="/explore">Explore</a>
+            <a href="/destinations">Destinations</a>
+            <a href="/about">About Us</a>
+        </div>
+        <div class="nav-actions">
+            <% if (user) { %>
+                <a href="/">Dashboard</a>
+                <a href="/logout">Log out</a>
+            <% } else { %>
+                <a href="/login">Sign In</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <main class="auth-layout">
+        <section class="auth-intro">
+            <h1><%= authMode === 'register' ? 'Join the celebration.' : 'Welcome back.' %></h1>
+            <p>
+                <%= authMode === 'register'
+                    ? 'Create your UtsavFest account and discover celebrations made for you.'
+                    : 'Sign in to save festivals, follow events, and plan your next celebration.' %>
+            </p>
+        </section>
+
+        <section class="auth-card">
+            <h2><%= authMode === 'register' ? 'Create account' : 'Sign in' %></h2>
+            <p class="auth-subtitle">Choose your account type to continue.</p>
+
+            <% if (message) { %>
+                <div class="auth-message alert alert-warning fade show" role="alert"><%= message %></div>
+            <% } %>
+
+            <form action="<% if (authMode === 'register') { %>/register<% } else if (authMode === 'reset-password') { %>/reset-password<% } else { %>/login<% } %>" method="post" enctype="multipart/form-data">
+                <% if (authMode === 'login') { %>
+                    <% if (isAdminDashboardLogin) { %><input type="hidden" name="returnTo" value="<%= returnTo %>"><% } %>
+                    <label class="auth-field role-dropdown-label">
+                        Login as
+                        <select name="role" id="roleSelect" required>
+                            <option value="student" <% if (!isAdminDashboardLogin) { %>selected<% } %>><i class="fa-solid fa-graduation-cap"></i> Student</option>
+                            <option value="faculty"><i class="fa-solid fa-chalkboard-user"></i> Faculty</option>
+                            <option value="event-coordinator">Event Coordinator</option>
+                            <option value="admin-2.0" <% if (isAdminDashboardLogin) { %>selected<% } %>>Admin 2.0</option>
+                        </select>
+                    </label>
+
+                    <div class="auth-method-toggle" aria-label="Choose login method">
+                        <!-- <button type="button" class="auth-method-button active" data-login-mode="email" disabled>Email & Password</button> -->
+                    </div>
+                <% } %>
+
+                <% if (authMode === 'reset-password') { %>
+                    <h3 style="text-align: center; color: #333; margin-bottom: 20px;">Reset Your Password</h3>
+                    <p style="text-align: center; color: #666; margin-bottom: 30px;">Enter your new password below</p>
+                <% } %>
+
+                <% if (authMode === 'register') { %>
+                    <label class="auth-field role-dropdown-label">
+                        Register as
+                        <select name="role" id="registerTypeSelect" required>
+                            <option value="student" selected><i class="fa-solid fa-graduation-cap"></i> Student</option>
+                            <option value="faculty"><i class="fa-solid fa-chalkboard-user"></i> Faculty</option>
+                        </select>
+                    </label>
+                <% } %>
+
+                <!-- Admin Category Options -->
+                <div class="admin-category-options" hidden>
+                    <p class="category-label">Select admin category:</p>
+                    <div class="category-options">
+                        <div>
+                            <input id="facility" name="adminCategory" value="facility" type="radio" checked>
+                            <label for="facility"><i class="fa-solid fa-building"></i> Facility Login</label>
+                        </div>
+                        <div>
+                            <input id="tnp" name="adminCategory" value="tnp" type="radio">
+                            <label for="tnp"><i class="fa-solid fa-briefcase"></i> Event Coordinator Login</label>
+                        </div>
+                    </div>
+                </div>
+
+                <% if (authMode === 'register') { %>
+                    <div class="student-fields">
+                        <label class="auth-field">
+                            Name of student
+                            <input name="studentName" type="text" placeholder="Enter your full name" maxlength="20" required>
+                        </label>
+
+                        <label class="auth-field">
+                            Name of college
+                            <input name="collegeName" type="text" placeholder="Enter your college name" required>
+                        </label>
+
+                        <label class="auth-field">
+                            Department
+                            <input name="department" type="text" placeholder="e.g. Computer Science" required>
+                        </label>
+
+                        <label class="auth-field">
+                            Gender (optional)
+                            <select name="gender">
+                                <option value="" selected>Not specified</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                                <option value="prefer-not-to-say">Prefer not to say</option>
+                            </select>
+                        </label>
+
+                        <label class="auth-field">
+                            Semester
+                            <select name="semester" required>
+                                <option value="" selected disabled>Select semester</option>
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                                <option value="3">Semester 3</option>
+                                <option value="4">Semester 4</option>
+                                <option value="5">Semester 5</option>
+                                <option value="6">Semester 6</option>
+                                <option value="7">Semester 7</option>
+                                <option value="8">Semester 8</option>
+                            </select>
+                        </label>
+
+                        <label class="auth-field">
+                            Enrollment number
+                            <input name="enrollmentNumber" type="text" placeholder="Enter your enrollment number" maxlength="20" required>
+                        </label>
+
+                        <label class="auth-field">
+                            Student picture
+                            <input name="picture" type="file" accept="image/png, image/jpeg, image/webp" required>
+                        </label>
+                    </div>
+
+                    <div class="admin-fields" hidden>
+                        <label class="auth-field">
+                            Name of teacher
+                            <input name="teacherName" type="text" placeholder="Enter teacher name" maxlength="20" required disabled>
+                        </label>
+
+                        <label class="auth-field">
+                            Department
+                            <input name="adminDepartment" type="text" placeholder="Enter department name" required disabled>
+                        </label>
+
+                        <label class="auth-field">
+                            College name
+                            <input name="adminCollege" type="text" placeholder="Enter college name" required disabled>
+                        </label>
+
+                        <label class="auth-field">
+                            Gender (optional)
+                            <select name="gender" disabled>
+                                <option value="" selected>Not specified</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                                <option value="prefer-not-to-say">Prefer not to say</option>
+                            </select>
+                        </label>
+                    </div>
+                <% } %>
+
+                <% if (authMode === 'register') { %>
+                    <label class="auth-field">
+                        Mobile number
+                        <input name="mobileNumber" type="tel" placeholder="Enter your mobile number" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" required>
+                    </label>
+                <% } %>
+
+                <% if (authMode === 'login') { %>
+                    <div class="login-email-fields">
+                        <label class="auth-field">
+                            Email address
+                            <input name="email" id="emailInput" type="email" placeholder="you@example.com" maxlength="30" required>
+                        </label>
+                    </div>
+
+                    <div class="login-id-fields" hidden>
+                        <label class="auth-field">
+                            Login ID
+                            <input name="loginId" id="loginIdInput" type="text" placeholder="Enter your login ID" autocomplete="username" maxlength="254" disabled>
+                        </label>
+                    </div>
+
+                    <label class="auth-field">
+                        Password
+                        <input name="password" id="passwordInput" type="password" placeholder="Enter your password" minlength="6" maxlength="20" required>
+                    </label>
+                <% } else { %>
+                    <label class="auth-field">
+                        Email address
+                        <input name="email" type="email" placeholder="you@example.com" maxlength="30" required>
+                    </label>
+
+                    <label class="auth-field">
+                        Password
+                        <input name="password" type="password" placeholder="Enter your password" minlength="6" maxlength="20" <% if (authMode === 'register') { %>pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,20}" title="Use 6-20 characters with uppercase, lowercase, a number, and a special character."<% } %> required>
+                    </label>
+                <% } %>
+
+                <% if (authMode === 'login') { %>
+                    <div class="forgot-password-link">
+                        <a href="#" id="forgotPasswordBtn"><i class="fa-solid fa-key"></i> Forgot password?</a>
+                    </div>
+                <% } %>
+
+                <% if (authMode === 'reset-password') { %>
+                    <label class="auth-field">
+                        Confirm New Password
+                        <input name="confirmPassword" type="password" placeholder="Confirm your password" minlength="6" maxlength="20" required>
+                    </label>
+                    <input type="hidden" name="resetToken" id="resetToken" value="">
+                <% } %>
+
+                <% if (authMode === 'register') { %>
+                    <label class="auth-field">
+                        Confirm password
+                        <input name="confirmPassword" type="password" placeholder="Repeat your password" minlength="6" maxlength="20" required>
+                    </label>
+                <% } %>
+
+                <button class="auth-submit" type="submit">
+                    <% if (authMode === 'register') { %>
+                        Create account
+                    <% } else if (authMode === 'reset-password') { %>
+                        Reset Password
+                    <% } else { %>
+                        Sign in
+                    <% } %>
+                </button>
+            </form>
+
+            <p class="auth-switch">
+                <%= authMode === 'register' ? 'Already have an account?' : 'New to UtsavFest?' %>
+                <a href="<%= authMode === 'register' ? '/login' : '/register' %>">
+                    <%= authMode === 'register' ? 'Sign in' : 'Register now' %>
+                </a>
+            </p>
+
+            <!-- Mobile OTP password recovery -->
+            <div class="modal-overlay" id="forgotPasswordModal" role="dialog" aria-modal="true" aria-labelledby="recoveryTitle">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="recoveryTitle">Forgot Password?</h3>
+                        <button type="button" class="modal-close" id="closeModal" aria-label="Close password recovery">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <p class="modal-subtitle" id="recoverySubtitle">Enter your registered mobile number to request an OTP.</p>
+                    <p id="recoveryMessage" role="status" aria-live="polite"></p>
+                    <form id="forgotPasswordForm" action="/forgot-password" method="post">
+                        <label class="auth-field">Account type
+                            <select name="role" id="recoveryRole" required>
+                                <option value="student">Student</option>
+                                <option value="faculty">Faculty</option>
+                            </select>
+                        </label>
+                        <label class="auth-field">Registered mobile number
+                            <input name="mobileNumber" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="10-digit mobile number" pattern="[0-9]{10}" minlength="10" maxlength="10" required>
+                        </label>
+                        <button class="auth-submit" type="submit">Request OTP</button>
+                    </form>
+                    <form id="passwordOtpForm" action="/verify-password-otp" method="post" hidden>
+                        <label class="auth-field">7-character OTP
+                            <input name="otp" type="text" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" pattern="[A-Za-z0-9]{7}" minlength="7" maxlength="7" placeholder="Example: A3B7C2D" required>
+                        </label>
+                        <button class="auth-submit" type="submit">Verify OTP</button>
+                        <button type="button" id="requestNewPasswordOtp">Request a new OTP</button>
+                    </form>
+                    <form id="updatePasswordForm" action="/update-password" method="post" hidden>
+                        <label class="auth-field">New password
+                            <input name="password" type="password" autocomplete="new-password" minlength="6" maxlength="20" required>
+                        </label>
+                        <p class="modal-subtitle">Use 6?20 characters with uppercase and lowercase letters, a number, and a special character.</p>
+                        <label class="auth-field">Confirm new password
+                            <input name="confirmPassword" type="password" autocomplete="new-password" minlength="6" maxlength="20" required>
+                        </label>
+                        <button class="auth-submit" type="submit">Update Password</button>
+                    </form>
+                    <p class="modal-footer"><a href="#" id="backToLogin">Back to login</a></p>
+                </div>
+            </div>
+            <style>#forgotPasswordModal form[hidden] { display: none; } #recoveryMessage { margin-bottom: 12px; } #requestNewPasswordOtp { margin-top: 12px; cursor: pointer; }</style>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <img src="/image.png" alt="UtsavFest logo">
+                <h4>UtsavFest</h4>
+                <p>Your ultimate guide to global celebrations and cultural events.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Discover</h4>
+                <ul>
+                    <li><a href="/calendar">Monthly Calendar</a></li>
+                    <li><a href="/explore">Explore Festivals</a></li>
+                    <li><a href="/destinations">Destinations</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 UtsavFest. All rights reserved.</p>
+            <div class="social-icons">
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const authMode = '<%= authMode %>';
+        const authMessage = document.querySelector('.auth-message');
+        if (authMessage) {
+            window.setTimeout(() => {
+                authMessage.classList.remove('show');
+                window.setTimeout(() => {
+                    authMessage.hidden = true;
+                }, 200);
+            }, 3000);
+        }
+
+        const emailInput = document.getElementById('emailInput');
+        const loginIdInput = document.getElementById('loginIdInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const mobileInput = document.querySelector('input[name="mobileNumber"]');
+        if (passwordInput) {
+            passwordInput.required = true;
+        }
+        if (mobileInput) {
+            mobileInput.addEventListener('input', () => {
+                mobileInput.value = mobileInput.value.replace(/\D/g, '').slice(0, 10);
+            });
+        }
+
+        const authCard = document.querySelector('.auth-card');
+        const roleSelect = document.getElementById('roleSelect');
+        const registerTypeSelect = document.getElementById('registerTypeSelect');
+        const activeSelector = roleSelect || registerTypeSelect;
+        const forgotPasswordLink = document.querySelector('.forgot-password-link');
+
+        if (activeSelector) {
+            const updateRoleFields = () => {
+                const studentFields = document.querySelector('.student-fields');
+                const adminFields = document.querySelector('.admin-fields');
+                const selectedRole = activeSelector.value;
+                const isStudent = selectedRole === 'student';
+                const isFaculty = selectedRole === 'faculty';
+                const isAdmin = ['admin-2.0', 'event-coordinator'].includes(selectedRole);
+
+                if (emailInput && loginIdInput) {
+                    const emailFields = emailInput.closest('.login-email-fields');
+                    const loginIdFields = loginIdInput.closest('.login-id-fields');
+                    emailFields.hidden = isAdmin;
+                    emailInput.disabled = isAdmin;
+                    emailInput.required = !isAdmin;
+                    loginIdFields.hidden = !isAdmin;
+                    loginIdInput.disabled = !isAdmin;
+                    loginIdInput.required = isAdmin;
+                }
+
+                if (forgotPasswordLink) {
+                    forgotPasswordLink.hidden = isAdmin;
+                }
+
+                if (studentFields) {
+                    studentFields.hidden = !isStudent;
+                    studentFields.style.display = isStudent ? '' : 'none';
+                    studentFields.querySelectorAll('input, select').forEach((field) => {
+                        const studentOnlyFields = ['studentName', 'collegeName', 'department', 'semester', 'enrollmentNumber', 'picture'];
+                        const isStudentOnlyField = studentOnlyFields.includes(field.name);
+                        field.disabled = !isStudent;
+                        field.required = isStudent && isStudentOnlyField;
+
+                        if (!isStudent && isStudentOnlyField) {
+                            field.value = '';
+                        }
+                    });
+                }
+
+                if (adminFields) {
+                    adminFields.hidden = !(isFaculty || isAdmin);
+                    adminFields.style.display = (isFaculty || isAdmin) ? '' : 'none';
+                    adminFields.querySelectorAll('input, select').forEach((field) => {
+                        const shouldRequire = isFaculty || isAdmin;
+                        field.disabled = !shouldRequire;
+                        field.required = shouldRequire && field.name !== 'gender';
+                    });
+                }
+
+                if (authCard) {
+                    authCard.classList.remove('role-changed');
+                    void authCard.offsetWidth;
+                    authCard.classList.add('role-changed');
+                }
+            };
+
+            activeSelector.addEventListener('change', updateRoleFields);
+            updateRoleFields();
+        }
+
+        // The reset token is issued only after the server verifies the OTP.
+        const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+        const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+        const recoveryForms = ['forgotPasswordForm', 'passwordOtpForm', 'updatePasswordForm'].map(id => document.getElementById(id));
+        const recoveryMessage = document.getElementById('recoveryMessage');
+        let recoveryRequestId = '';
+        let recoveryResetToken = '';
+        let recoveryVersion = 0;
+
+        function showRecoveryStep(step, message = '') {
+            recoveryForms.forEach((form, index) => { form.hidden = index !== step; });
+            document.getElementById('recoveryTitle').textContent = ['Forgot Password?', 'Verify OTP', 'Update Password'][step];
+            document.getElementById('recoverySubtitle').textContent = [
+                'Enter your registered mobile number to request an OTP.',
+                'Enter the 7-character OTP you received on your mobile. It expires in 10 minutes.',
+                'OTP verified. Set your new password within 5 minutes.'
+            ][step];
+            recoveryMessage.textContent = message;
+            recoveryForms[step].querySelector('input, select').focus();
+        }
+        function resetRecovery() {
+            recoveryVersion++;
+            recoveryRequestId = '';
+            recoveryResetToken = '';
+            recoveryForms.forEach(form => form.reset());
+            const selectedRole = roleSelect?.value;
+            document.getElementById('recoveryRole').value = selectedRole === 'faculty' ? 'faculty' : 'student';
+            showRecoveryStep(0);
+        }
+        function closeRecovery() {
+            resetRecovery();
+            forgotPasswordModal.classList.remove('active');
+            forgotPasswordBtn?.focus();
+        }
+        forgotPasswordBtn?.addEventListener('click', event => {
+            event.preventDefault();
+            forgotPasswordModal.classList.add('active');
+            resetRecovery();
+        });
+        document.getElementById('closeModal').addEventListener('click', closeRecovery);
+        document.getElementById('backToLogin').addEventListener('click', event => { event.preventDefault(); closeRecovery(); });
+        forgotPasswordModal.addEventListener('click', event => { if (event.target === forgotPasswordModal) closeRecovery(); });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && forgotPasswordModal.classList.contains('active')) closeRecovery();
+            if (event.key === 'Tab' && forgotPasswordModal.classList.contains('active')) {
+                const focusable = [...forgotPasswordModal.querySelectorAll('input, select, button, a')].filter(element => !element.disabled && element.getClientRects().length);
+                const first = focusable[0], last = focusable[focusable.length - 1];
+                if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+                else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+            }
+        });
+        document.getElementById('requestNewPasswordOtp').addEventListener('click', resetRecovery);
+        recoveryForms.forEach((form, step) => form.addEventListener('submit', async event => {
+            event.preventDefault();
+            const button = form.querySelector('button[type="submit"]');
+            if (button.disabled) return;
+            const version = recoveryVersion;
+            const originalText = button.textContent;
+            const data = Object.fromEntries(new FormData(form));
+            if (step === 2 && data.password !== data.confirmPassword) {
+                recoveryMessage.textContent = 'Passwords do not match.';
+                return;
+            }
+            if (step > 0) data.requestId = recoveryRequestId;
+            if (step === 2) data.resetToken = recoveryResetToken;
+            button.disabled = true;
+            button.textContent = 'Please wait...';
+            recoveryMessage.textContent = '';
+            try {
+                const response = await fetch(form.getAttribute('action'), {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (version !== recoveryVersion) return;
+                if (!result.success) { recoveryMessage.textContent = result.message; return; }
+                if (step === 0) {
+                    recoveryRequestId = result.requestId;
+                    showRecoveryStep(1, result.message);
+                } else if (step === 1) {
+                    recoveryResetToken = result.resetToken;
+                    showRecoveryStep(2, result.message);
+                } else {
+                    // Keep the login form on the account whose password was changed.
+                    if (result.login?.email && emailInput) emailInput.value = result.login.email;
+                    if (result.login?.role && roleSelect) {
+                        roleSelect.value = result.login.role;
+                        roleSelect.dispatchEvent(new Event('change'));
+                    }
+                    if (passwordInput) passwordInput.value = '';
+                    closeRecovery();
+                    alert(result.message);
+                    passwordInput?.focus();
+                }
+            } catch (error) {
+                if (version === recoveryVersion) recoveryMessage.textContent = 'Unable to connect. Please try again.';
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }));
+
+    </script>
+</body>
+<script>
+    (() => { const nav = document.querySelector('nav'); const toggle = nav?.querySelector('.mobile-nav-toggle'); if (!nav || !toggle) return; toggle.addEventListener('click', () => { const open = nav.classList.toggle('mobile-nav-open'); toggle.setAttribute('aria-expanded', String(open)); toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation'); toggle.innerHTML = `<i class="fa-solid ${open ? 'fa-xmark' : 'fa-bars'}"></i>`; }); nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => nav.classList.remove('mobile-nav-open'))); })();
+</script>
+</html>

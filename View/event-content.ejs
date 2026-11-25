@@ -1,0 +1,59 @@
+<% const title = reports ? 'Event Reports' : uploading ? 'Upload Event Photos' : 'Download Event Photos'; %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | UtsavFest</title>
+    <link rel="stylesheet" href="/event-content.css">
+    <script src="/event-content.js" defer></script>
+</head>
+<body>
+    <header class="content-nav"><a class="content-brand" href="<%= back %>">UtsavFest</a><a href="<%= back %>">&larr; Back to dashboard</a></header>
+    <main id="event-content" data-events="<%= JSON.stringify(events) %>" data-mode="<%= reports ? 'reports' : uploading ? 'upload' : 'gallery' %>">
+        <section class="content-hero">
+            <p class="eyebrow"><%= reports ? 'Event documentation' : 'Campus memories' %></p>
+            <h1><%= title %></h1>
+            <p><%= reports ? 'Choose a fest and event to view or write its report.' : uploading ? 'Share the moments that made your event special. Choose a fest, then your event, and upload your photos.' : 'Find your fest, choose an event, and take your favourite moments with you.' %></p>
+            <% if (uploading) { %><a class="text-link" href="/event-photos">Browse and download all event photos &rarr;</a><% } %>
+        </section>
+        <section class="content-panel" aria-labelledby="selection-title">
+            <h2 id="selection-title">Select an event</h2>
+            <div class="event-selection">
+                <label><span class="step">1</span> Fest<select id="content-fest"><option value="">Select a fest</option></select></label>
+                <label><span class="step">2</span> Event<select id="content-event" disabled><option value="">Select a fest first</option></select></label>
+            </div>
+            <% if (!events.length) { %><p class="empty-note"><%= uploading || reports ? 'No events are available. Coordinators must create an event before adding photos or a report.' : 'No events are available yet.' %></p><% } %>
+        </section>
+        <p id="content-status" role="status" aria-live="polite">Select a fest and event to get started.</p>
+        <% if (reports) { %>
+        <section class="content-panel" id="report-panel" hidden aria-labelledby="report-heading">
+            <div class="section-heading"><div><p class="eyebrow">Event documentation</p><h2 id="report-heading">Write your report</h2></div><span id="report-saved"></span></div>
+            <section aria-labelledby="report-winners-heading"><h3 id="report-winners-heading">Event winners</h3><p>Winners are selected in your dashboard under Participants &amp; Winners.</p><ol id="report-winners"></ol></section>
+            <form id="report-form">
+                <label>Report title<input id="report-title" maxlength="150" required placeholder="Give your event report a title"></label>
+                <label>Event report<textarea id="report-body" maxlength="30000" rows="14" required placeholder="Describe the event, activities, highlights, attendance, and outcomes."></textarea></label>
+                <div class="form-footer"><span id="report-length">0 / 30,000 characters</span><button id="report-save" type="submit">Save Report</button></div>
+            </form>
+        </section>
+        <% } else { %>
+            <% if (uploading) { %>
+            <section class="content-panel" id="upload-panel" hidden aria-labelledby="upload-heading">
+                <p class="eyebrow">Step 3</p><h2 id="upload-heading">Upload your event photos</h2>
+                <form id="photo-form">
+                    <label class="upload-zone" for="photo-files"><span class="button upload-choose-button">Choose Multiple Photos</span><input id="photo-files" type="file" accept="image/jpeg,image/png,image/webp" multiple required aria-describedby="photo-help"></label>
+                    <p id="photo-help" class="muted">Select multiple JPEG, PNG, or WebP photos. Maximum 8 MB per photo.</p>
+                    <ul id="photo-selection" class="file-list"></ul>
+                    <div class="form-footer"><span id="upload-progress" aria-live="polite"></span><button id="upload-submit" type="submit">Upload Photos</button></div>
+                </form>
+            </section>
+            <% } %>
+            <section class="content-panel" id="gallery-panel" hidden aria-labelledby="gallery-heading">
+                <div class="section-heading"><div><p class="eyebrow">Event album</p><h2 id="gallery-heading">Photos <span id="photo-count"></span></h2></div><a id="download-album" class="button" hidden>Download All Photos (.zip)</a></div>
+                <p id="gallery-empty" class="empty-note" hidden>No photos have been uploaded for this event yet.</p>
+                <div id="photo-gallery" class="photo-gallery"></div>
+            </section>
+        <% } %>
+    </main>
+</body>
+</html>

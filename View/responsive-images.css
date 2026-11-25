@@ -1,0 +1,13 @@
+img {
+    display: block;
+    height: auto;
+    max-height: 100svh;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+@supports not (height: 100svh) {
+    img {
+        max-height: 100vh;
+    }
+}

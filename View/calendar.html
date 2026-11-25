@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Festival Calendar | UtsavFest</title>
+    <meta name="description" content="Browse the UtsavFest festival calendar to discover upcoming cultural programs, student events, and campus celebrations.">
+    <meta name="keywords" content="festival calendar, campus events, cultural schedule, university festival dates, event planner, student celebrations">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#7c3aed">
+    <link rel="canonical" href="https://www.utsavfest.com/calendar">
+    <meta property="og:title" content="Festival Calendar | UtsavFest">
+    <meta property="og:description" content="Plan your month with upcoming festivals, student events, and cultural experiences at UtsavFest.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.utsavfest.com/calendar">
+    <meta property="og:image" content="https://www.utsavfest.com/image.png">
+    <link href="/calendar.css" rel="stylesheet">
+    <link href="/responsive-images.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+            <a class="logo" href="/fest.html"><img src="/image.png" alt="UtsavFest logo"><span>UtsavFest</span></a>
+        <button class="mobile-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+        <div class="nav-links">
+            <a class="active" href="/calendar">Calendar</a>
+            <a href="/explore">Explore</a>
+            <a href="/destinations">Destinations</a>
+            <a href="/about">About Us</a>
+        </div>
+        <div class="nav-actions">
+            <% if (user) { %><a href="/">Dashboard</a><a href="/logout">Log out</a><% } else { %><a href="/login">Sign In</a><% } %>
+        </div>
+    </nav>
+
+    <main>
+        <section class="calendar-hero">
+            <p class="eyebrow">CPU campus events</p>
+            <h1>Plan the moments that bring us together.</h1>
+            <p>See upcoming celebrations and arrange your own festival, cultural program, or student gathering at Columbia Professional University.</p>
+        </section>
+
+        <section class="calendar-layout">
+            <div class="calendar-panel">
+                <div class="calendar-header"><button id="previous-month" type="button" aria-label="Previous month">&#10094;</button><h2 id="month-title"></h2><button id="next-month" type="button" aria-label="Next month">&#10095;</button></div>
+                <div class="weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+                <article class="selected-event" id="selected-event" aria-live="polite">
+                    <img id="selected-event-image" alt="">
+                    <p class="eyebrow">Selected date</p>
+                    <h3 id="selected-event-title">Click a date to view a festival</h3>
+                    <p id="selected-event-details">Festival details will appear here.</p>
+                </article>
+            </div>
+
+            <% if (user && user.role === 'faculty') { %>
+                <aside class="arrange-panel">
+                    <p class="eyebrow">Add to the calendar</p>
+                    <h2>Arrange a CPU festival</h2>
+                    <p class="form-intro">Share the essentials and help the university community find your event.</p>
+                    <form id="event-form">
+                        <label>Festival name<input name="eventName" type="text" placeholder="e.g. CPU Cultural Night" required></label>
+                        <label>Date<input id="event-date" name="eventDate" type="date" aria-label="Festival date" required></label>
+                        <label>Location<input name="eventLocation" type="text" placeholder="e.g. Main Auditorium" required></label>
+                        <label>Festival image URL<input name="image" type="url" placeholder="https://example.com/festival.jpg"></label>
+                        <label>Or choose an image<input name="imageFile" type="file" accept="image/*"><small class="image-help">Use any image under 5 MB. It will be cropped to fit the home-page event card.</small></label>
+                        <button class="submit-button" type="submit"><i class="fa-solid fa-calendar-plus"></i> Add festival</button>
+                        <p class="form-message" id="form-message" role="status"></p>
+                    </form>
+                </aside>
+            <% } %>
+        </section>
+
+        <section class="events-section">
+            <div class="section-heading"><p class="eyebrow">Upcoming at CPU</p><h2>Festival lineup</h2></div>
+            <div class="event-list" id="event-list">
+                <% festivals.forEach((festival) => { %>
+                    <article class="event-item" data-festival-id="<%= festival.id || festival._id %>">
+                        <span class="event-date"><%= festival.date %></span>
+                        <div>
+                            <h3><%= festival.name %></h3>
+                            <p><i class="fa-solid fa-location-dot"></i> <%= festival.location %></p>
+                        </div>
+                        <% if (user && ['faculty', 'admin'].includes(user.role)) { %>
+                            <div class="event-item-actions" style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                                <% if (user.role === 'faculty') { %>
+                                    <button type="button" class="festival-edit-button" data-festival-id="<%= festival.id || festival._id %>" style="padding: 0.7rem 1rem; border: none; border-radius: 999px; background: #3b82f6; color: white; cursor: pointer;">Edit</button>
+                                <% } %>
+                                <button type="button" class="festival-delete-button" data-festival-id="<%= festival.id || festival._id %>" style="padding: 0.7rem 1rem; border: none; border-radius: 999px; background: #ef4444; color: white; cursor: pointer;">Delete</button>
+                            </div>
+                        <% } %>
+                    </article>
+                <% }); %>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <img src="/image.png" alt="UtsavFest logo">
+                <h4>UtsavFest</h4>
+                <p>Your ultimate guide to global celebrations and cultural events.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Discover</h4>
+                <ul>
+                    <a href="/calendar">Monthly Calendar</a>
+                    <BR>
+
+                    <a href="/explore">Explore Festivals</a>
+                    <BR>
+
+                    <a href="/destinations">Destinations</a>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <a href="/about">About Us</a>
+                    <BR>
+
+                    <a href="#">FAQ</a>
+                    <BR>
+
+                    <a href="#">Privacy Policy</a>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 UtsavFest. All rights reserved.</p>
+            <div class="social-icons">
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const festivals = <%- JSON.stringify(festivals) %>;
+        const calendarGrid = document.getElementById('calendar-grid');
+        const monthTitle = document.getElementById('month-title');
+        let displayedMonth = new Date();
+        let selectedDateKey = '';
+
+        function getFestivalMonthDay(dateValue, fallbackYear) {
+            const trimmedDate = String(dateValue || '').trim();
+            if (!trimmedDate) return null;
+
+            const isoMatch = /^\d{4}-\d{2}-\d{2}$/.exec(trimmedDate);
+            if (isoMatch) {
+                const [year, month, day] = trimmedDate.split('-').map(Number);
+                if (Number.isInteger(year) && Number.isInteger(month) && Number.isInteger(day)) {
+                    return { year, month: month - 1, day };
+                }
+            }
+
+            const festivalDate = new Date(trimmedDate);
+            if (!Number.isNaN(festivalDate.getTime())) {
+                return { year: festivalDate.getFullYear(), month: festivalDate.getMonth(), day: festivalDate.getDate() };
+            }
+
+            const festivalWithYear = new Date(`${trimmedDate} ${fallbackYear}`);
+            if (Number.isNaN(festivalWithYear.getTime())) return null;
+            return { year: festivalWithYear.getFullYear(), month: festivalWithYear.getMonth(), day: festivalWithYear.getDate() };
+        }
+
+        function renderCalendar() {
+            const year = displayedMonth.getFullYear();
+            const month = displayedMonth.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            monthTitle.textContent = displayedMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            calendarGrid.innerHTML = '';
+            for (let index = 0; index < firstDay; index += 1) calendarGrid.insertAdjacentHTML('beforeend', '<span class="calendar-day empty"></span>');
+            for (let day = 1; day <= daysInMonth; day += 1) {
+                const cell = document.createElement('button');
+                cell.className = 'calendar-day';
+                cell.type = 'button';
+                cell.textContent = day;
+                cell.setAttribute('aria-label', `Show festivals on ${month + 1}/${day}/${year}`);
+                const dateKey = `${year}-${month}-${day}`;
+                const matchingFestivals = festivals.filter((festival) => {
+                    const festivalDate = getFestivalMonthDay(festival.date, year);
+                    return festivalDate && festivalDate.month === month && festivalDate.day === day;
+                });
+                if (matchingFestivals.length) cell.classList.add('has-event');
+                if (day === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear()) cell.classList.add('today');
+                cell.addEventListener('click', () => {
+                    if (selectedDateKey === dateKey) {
+                        clearSelectedEvent();
+                        cell.classList.remove('selected');
+                        cell.blur();
+                        return;
+                    }
+
+                    document.querySelectorAll('.calendar-day.selected').forEach((selectedCell) => selectedCell.classList.remove('selected'));
+                    selectedDateKey = dateKey;
+                    cell.classList.add('selected');
+                    showSelectedEvent(day, matchingFestivals);
+                });
+                calendarGrid.appendChild(cell);
+            }
+        }
+
+        function clearSelectedEvent() {
+            selectedDateKey = '';
+            document.getElementById('selected-event').classList.remove('visible');
+        }
+
+        function showSelectedEvent(day, matchingFestivals) {
+            const selectedEvent = document.getElementById('selected-event');
+            const image = document.getElementById('selected-event-image');
+            const title = document.getElementById('selected-event-title');
+            const details = document.getElementById('selected-event-details');
+            selectedEvent.classList.add('visible');
+            if (!matchingFestivals.length) {
+                image.hidden = true;
+                title.textContent = `No festival on ${displayedMonth.toLocaleDateString('en-US', { month: 'short' })} ${day}`;
+                details.textContent = 'Choose another highlighted date or arrange a new CPU festival.';
+                return;
+            }
+
+            const festival = matchingFestivals[0];
+            image.src = festival.image || 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80';
+            image.alt = `${festival.name} festival`;
+            image.hidden = false;
+            title.textContent = festival.name;
+            details.innerHTML = `<strong>${festival.date}</strong> <span>-</span> <i class="fa-solid fa-location-dot"></i> ${festival.location}`;
+        }
+
+        document.getElementById('previous-month').addEventListener('click', () => { displayedMonth.setMonth(displayedMonth.getMonth() - 1); renderCalendar(); });
+        document.getElementById('next-month').addEventListener('click', () => { displayedMonth.setMonth(displayedMonth.getMonth() + 1); renderCalendar(); });
+        renderCalendar();
+
+        const eventForm = document.getElementById('event-form');
+        const eventDateInput = document.getElementById('event-date');
+        if (eventDateInput) {
+            eventDateInput.addEventListener('click', () => {
+                if (typeof eventDateInput.showPicker === 'function') eventDateInput.showPicker();
+            });
+        }
+
+        if (eventForm) {
+            eventForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const message = document.getElementById('form-message');
+                const formData = new FormData(event.target);
+                const imageFile = formData.get('imageFile');
+
+                if (imageFile instanceof File && imageFile.size > 5 * 1024 * 1024) {
+                    message.textContent = 'Please choose an image smaller than 5 MB.';
+                    message.className = 'form-message error';
+                    return;
+                }
+
+                formData.delete('imageFile');
+
+                try {
+                    if (imageFile instanceof File && imageFile.size > 0) {
+                        formData.set('image', await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.addEventListener('load', () => resolve(reader.result));
+                            reader.addEventListener('error', reject);
+                            reader.readAsDataURL(imageFile);
+                        }));
+                    }
+
+                    const response = await fetch('/add-event', { method: 'POST', body: formData, headers: { Accept: 'application/json' } });
+                    const result = await response.json();
+                    message.textContent = result.message;
+                    message.className = `form-message ${result.success ? 'success' : 'error'}`;
+                    if (result.success) {
+                        festivals.unshift(result.festival);
+                        event.target.reset();
+                        renderCalendar();
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    message.textContent = 'Unable to arrange the festival right now.';
+                    message.className = 'form-message error';
+                }
+            });
+        }
+
+        document.querySelectorAll('.festival-edit-button').forEach((button) => {
+            button.addEventListener('click', async () => {
+                const festivalId = button.dataset.festivalId;
+                if (!festivalId) return;
+
+                const currentFestival = festivals.find((festival) => String(festival.id || festival._id) === String(festivalId));
+                if (!currentFestival) return;
+
+                const nextName = window.prompt('Edit festival name', currentFestival.name || '');
+                if (nextName === null) return;
+                const nextDate = window.prompt('Edit festival date (YYYY-MM-DD)', currentFestival.date || '');
+                if (nextDate === null) return;
+                const nextLocation = window.prompt('Edit festival location', currentFestival.location || '');
+                if (nextLocation === null) return;
+                const nextImage = window.prompt('Edit festival image URL', currentFestival.image || '');
+                if (nextImage === null) return;
+
+                const response = await fetch('/edit-festival', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify({
+                        festivalId,
+                        eventName: nextName.trim(),
+                        eventDate: nextDate.trim(),
+                        eventLocation: nextLocation.trim(),
+                        image: nextImage.trim()
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    window.alert(result.message || 'Unable to update festival.');
+                }
+            });
+        });
+
+        document.querySelectorAll('.festival-delete-button').forEach((button) => {
+            button.addEventListener('click', async () => {
+                const festivalId = button.dataset.festivalId;
+                if (!festivalId) return;
+
+                const confirmDelete = window.confirm('Delete this festival event?');
+                if (!confirmDelete) return;
+
+                const response = await fetch('/delete-festival', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify({ festivalId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    window.alert(result.message || 'Unable to delete festival.');
+                }
+            });
+        });
+    </script>
+</body>
+<script>
+    (() => { const nav = document.querySelector('nav'); const toggle = nav?.querySelector('.mobile-nav-toggle'); if (!nav || !toggle) return; toggle.addEventListener('click', () => { const open = nav.classList.toggle('mobile-nav-open'); toggle.setAttribute('aria-expanded', String(open)); toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation'); toggle.innerHTML = `<i class="fa-solid ${open ? 'fa-xmark' : 'fa-bars'}"></i>`; }); nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => nav.classList.remove('mobile-nav-open'))); })();
+</script>
+</html>

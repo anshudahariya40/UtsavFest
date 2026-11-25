@@ -1,0 +1,72 @@
+const assert = require('node:assert/strict');
+const http = require('node:http');
+const { randomUUID } = require('node:crypto');
+const test = require('node:test');
+
+process.env.MONGODB_URI = `mongodb://127.0.0.1:27017/utsavfest_participation_test_${randomUUID().replace(/-/g, '')}`;
+const { mongoose } = require('../Model/db');
+const users = require('../Model/userModel');
+const events = require('../Model/festivalModel1');
+const { handleRequest, createSessionCookie } = require('./server');
+
+test('admin filters coordinator event participants and student registrations use stable event IDs', async () => {
+    const server = http.createServer(handleRequest);
+    try {
+        await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
+        await users.EventCoordinator.create({ id: 'coordinator', role: 'event-coordinator', name: 'Coordinator', email: 'coordinator@example.test', password: 'test-hash' });
+        await users.Student.create({ id: 'student', role: 'student', name: 'Test Student', email: 'student@example.test', mobileNumber: '9000000001', enrollmentNumber: 'TEST001', gender: 'female', password: 'test-hash', collegeName: 'Test College', department: 'Engineering' });
+        const first = (await events.addFestival({ eventName: 'Campus [Day]', eventLocation: 'Hall A', eventDate: '2026-10-20', createdBy: 'coordinator' })).festival;
+        const second = (await events.addFestival({ eventName: 'Campus [Day]', eventLocation: 'Hall B', eventDate: '2026-10-21', createdBy: 'coordinator' })).festival;
+        const other = (await events.addFestival({ eventName: 'Unscheduled demo', eventLocation: 'Elsewhere' })).festival;
+        await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+        const base = `http://127.0.0.1:${server.address().port}`;
+        const cookie = role => createSessionCookie({ id: role === 'student' ? 'student' : 'test-session', role });
+        const data = { studentName: '<Student>', department: 'Engineering', fieldOfInterest: 'Music', semester: '3', collegeName: 'Test College', eventId: first.id, studentId: 'spoofed' };
+        const register = async (payload, role = 'student') => fetch(`${base}/add-participation`, { method: 'POST', headers: { Cookie: cookie(role), 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(payload) });
+        assert.equal((await register(data, 'faculty')).status, 403);
+        assert.equal((await (await register({ ...data, eventId: 'missing' })).json()).success, false);
+        const saved = await (await register(data)).json();
+        assert.equal(saved.success, true);
+        assert.equal(saved.participation.eventName, first.name);
+        assert.equal(saved.participation.studentId, 'student');
+        assert.equal(saved.participation.email, 'student@example.test');
+        assert.equal(saved.participation.enrollmentNumber, 'TEST001');
+        await events.addParticipation({ ...data, studentName: 'Other Student', eventId: second.id });
+        await events.EventParticipation.collection.insertOne({ studentName: 'Legacy Student', department: 'Arts', fieldOfInterest: 'Drama', semester: '2', collegeName: 'Old College', eventName: first.name });
+        const path = `${base}/admin-dashboard/participation`;
+        assert.equal((await fetch(path, { redirect: 'manual' })).status, 302);
+        assert.equal((await fetch(path, { headers: { Cookie: cookie('student') } })).status, 403);
+        const page = await (await fetch(`${path}?eventId=${first.id}`, { headers: { Cookie: cookie('admin') } })).text();
+        for (const value of ['Event Participants', 'Student Participation', '&lt;Student&gt;', 'student@example.test', '9000000001', 'TEST001', 'Music']) assert.ok(page.includes(value), value);
+        assert.ok(!page.includes('Legacy Student'), 'Ambiguous event names must not mix participants');
+        assert.ok(!page.includes('Other Student'));
+        assert.ok(!page.includes(other.name));
+        const empty = await (await fetch(path, { headers: { Cookie: cookie('admin') } })).text();
+        assert.ok(empty.includes('Select an event above'));
+        assert.ok(!empty.includes('Legacy Student'));
+        assert.equal((await events.getParticipationsForEvent(second)).filter(record => record.eventId).length, 1);
+        const third = (await events.addFestival({ eventName: 'Unique Event', eventLocation: 'Hall C', createdBy: 'coordinator' })).festival;
+        await events.EventParticipation.collection.insertOne({ studentName: 'Test Student', department: 'Engineering', fieldOfInterest: 'Drama', semester: '2', collegeName: 'Test College', eventName: third.name });
+        const accounts = await users.listUsersForAdmin();
+        const migration = await events.migrateParticipationRelationships(accounts);
+        assert.equal(migration.unresolvedEvents, 1);
+        assert.equal(migration.updated, 1);
+        assert.equal((await events.migrateParticipationRelationships(accounts)).updated, 0, 'Migration is safe to repeat');
+        assert.equal((await events.getParticipationsForEvent(third)).length, 1);
+        const registration = await events.EventParticipation.findOne({ eventId: third.id }).lean();
+        assert.equal(registration.studentId, 'student');
+        assert.equal(registration.email, 'student@example.test');
+        assert.equal((await events.addParticipation({ ...data, studentId: 'student-2', studentName: 'Second Student' })).success, true);
+        assert.equal((await events.addParticipation({ ...data, studentId: 'student', eventId: second.id })).success, true);
+        const grouped = await events.Festival.findOne({ id: first.id }).populate('participants');
+        assert.equal(grouped.participants.length, 2, 'One event stores multiple students');
+        assert.equal(await events.EventParticipation.countDocuments({ studentId: 'student' }), 3, 'One student can join multiple events');
+        await assert.rejects(events.EventParticipation.create({ ...data, eventId: '', studentId: '' }), { name: 'ValidationError' });
+        const indexes = await events.EventParticipation.collection.indexes();
+        assert.ok(indexes.some(index => index.key.eventId === 1 && index.key.createdAt === -1));
+    } finally {
+        await new Promise(resolve => server.close(resolve));
+        if (mongoose.connection.readyState === 1) await mongoose.connection.dropDatabase();
+        await mongoose.disconnect();
+    }
+});

@@ -1,0 +1,824 @@
+<% const dashboardData = locals.dashboardData || {}; %>
+<% const pageTitle = dashboardData.page === 'reports' ? 'Reports' : dashboardData.page === 'participation' ? 'Event Participants' : dashboardData.page === 'students' ? 'Student Dashboard' : dashboardData.page === 'events' ? 'Event Dashboard' : dashboardData.page === 'approvals' ? 'Faculty Approvals' : 'Account Management'; %>
+<% const roleChartAccounts = Array.isArray(dashboardData.accounts) ? dashboardData.accounts : (Array.isArray(dashboardData.adminUsers) ? dashboardData.adminUsers : []); %>
+<% const roleChartCounts = dashboardData.roleCounts || {}; %>
+<% const hasRoleChartData = Boolean(dashboardData.roleCounts || Array.isArray(dashboardData.accounts) || Array.isArray(dashboardData.adminUsers)); %>
+<% const roleChartDemoCounts = { student: 1, faculty: 1, admin: 1, 'event-coordinator': 1 }; %>
+<% const roleChartCount = (role) => hasRoleChartData ? (Number(roleChartCounts[role] ?? roleChartAccounts.filter((account) => account.role === role).length) || 0) : roleChartDemoCounts[role]; %>
+<% const roleChartEntries = [
+    { label: 'Students', count: roleChartCount('student'), color: '#5d9cec' },
+    { label: 'Faculty', count: roleChartCount('faculty'), color: '#f4b942' },
+    { label: 'Admins', count: roleChartCount('admin'), color: '#e85d75' },
+    { label: 'Event coordinators', count: roleChartCount('event-coordinator'), color: '#6dd1b5' }
+]; %>
+<% const studentChartDataProvided = Boolean(dashboardData.departmentCounts || Array.isArray(dashboardData.accounts) || Array.isArray(dashboardData.adminUsers)); %>
+<% const studentDepartmentCounts = dashboardData.departmentCounts || roleChartAccounts.filter((account) => account.role === 'student').reduce((counts, account) => { const department = String(account.department || 'Unassigned').trim() || 'Unassigned'; counts[department] = (counts[department] || 0) + 1; return counts; }, {}); %>
+<% const studentDepartmentEntries = (studentChartDataProvided ? Object.entries(studentDepartmentCounts) : [['Computer Science & Engineering', 1]]).map(([department, count]) => [department, Math.max(0, Number(count) || 0)]).filter(([, count]) => count > 0).sort((left, right) => right[1] - left[1]); %>
+<% const departmentChartColors = ['#5d9cec', '#f4b942', '#6dd1b5', '#e85d75', '#b39ddb', '#70c1b3', '#f08a5d', '#9bcb5b']; %>
+<% const studentDepartmentChartEntries = studentDepartmentEntries.map(([label, count], index) => ({ label, count, color: departmentChartColors[index % departmentChartColors.length] })); %>
+<% const studentMetricAccounts = studentChartDataProvided ? roleChartAccounts.filter((account) => account.role === 'student') : [{ gender: '', department: 'Computer Science', semester: '1', collegeName: 'CPU' }]; %>
+<% const studentGenderCount = (values) => studentMetricAccounts.filter((account) => values.includes(String(account.gender || '').trim().toLowerCase())).length; %>
+<% const studentGenderEntries = [
+    { label: 'Male', count: studentGenderCount(['male']), color: '#5d9cec' },
+    { label: 'Female', count: studentGenderCount(['female']), color: '#e9859b' },
+    { label: 'Other', count: studentGenderCount(['other']), color: '#6dd1b5' },
+    { label: 'Prefer not to say', count: studentGenderCount(['prefer-not-to-say']), color: '#f4b942' },
+    { label: 'Not specified', count: studentGenderCount(['']), color: '#91a4bd' }
+]; %>
+<% const studentSemesterEntries = Array.from({ length: 8 }, (_, index) => {
+    const semester = String(index + 1);
+    const count = studentMetricAccounts.filter((account) => String(account.semester || '').replace(/^semester\s*/i, '').trim() === semester).length;
+    return { label: `Semester ${semester}`, count, color: departmentChartColors[index % departmentChartColors.length] };
+}); %>
+<% const studentSemesterUnspecifiedCount = studentMetricAccounts.length - studentSemesterEntries.reduce((sum, entry) => sum + entry.count, 0); %>
+<% const studentSemesterChartEntries = studentSemesterUnspecifiedCount > 0 ? [...studentSemesterEntries, { label: 'Not specified', count: studentSemesterUnspecifiedCount, color: '#91a4bd' }] : studentSemesterEntries; %>
+<% const studentCollegeCounts = studentMetricAccounts.reduce((counts, account) => {
+    const college = String(account.collegeName || 'Not specified').trim() || 'Not specified';
+    counts[college] = (counts[college] || 0) + 1;
+    return counts;
+}, {}); %>
+<% const studentCollegeEntries = Object.entries(studentCollegeCounts).map(([label, count], index) => ({ label, count, color: departmentChartColors[index % departmentChartColors.length] })).sort((left, right) => right.count - left.count).slice(0, 6); %>
+<% const eventMetricEvents = Array.isArray(dashboardData.events) ? dashboardData.events : [{ dateISO: '2026-01-12', location: 'Madurai, India' }, { dateISO: '2026-02-09', location: 'Rio de Janeiro, Brazil' }, { dateISO: '2026-03-25', location: 'Mathura, India' }, { dateISO: '2026-04-14', location: 'Amritsar, India' }]; %>
+<% const eventMonthSummary = eventMetricEvents.reduce((summary, event) => {
+    const eventDate = new Date(event.dateISO || event.date || '');
+    if (Number.isNaN(eventDate.getTime())) {
+        summary.undated += 1;
+    } else {
+        summary.months[eventDate.getMonth()] += 1;
+    }
+    return summary;
+}, { months: Array(12).fill(0), undated: 0 }); %>
+<% const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; %>
+<% const eventMonthEntries = eventMonthSummary.months.map((count, index) => ({ label: monthNames[index], count, color: departmentChartColors[index % departmentChartColors.length] })).filter((entry) => entry.count > 0); %>
+<% if (eventMonthSummary.undated > 0) { eventMonthEntries.push({ label: 'Date not specified', count: eventMonthSummary.undated, color: '#91a4bd' }); } %>
+<% const eventLocationCounts = eventMetricEvents.reduce((counts, event) => {
+    const location = String(event.location || 'Location not specified').trim() || 'Location not specified';
+    counts[location] = (counts[location] || 0) + 1;
+    return counts;
+}, {}); %>
+<% const eventLocationEntries = Object.entries(eventLocationCounts).map(([label, count], index) => ({ label, count, color: departmentChartColors[index % departmentChartColors.length] })).sort((left, right) => right.count - left.count).slice(0, 8); %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %> | UtsavFest</title>
+    <link href="/fest.css" rel="stylesheet">
+    <link href="/responsive-images.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/admin-dashboard.css">
+</head>
+<body class="dashboard-page admin-standalone<%= ['students', 'events'].includes(dashboardData.page) ? ' statistics-dashboard-page' : '' %><%= dashboardData.page === 'students' ? ' student-dashboard-page' : '' %>">
+    <nav>
+        <a class="logo" href="/admin-dashboard">
+            <img src="/image.png" alt="UtsavFest logo">
+            <span>UtsavFest</span>
+        </a>
+        <button class="mobile-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+        <div class="nav-links">
+            <a href="/admin-dashboard" aria-current="<%= dashboardData.page === 'overview' ? 'page' : 'false' %>"><i class="fa-solid fa-users" aria-hidden="true"></i> Account Management</a>
+            <a href="/admin-dashboard/students" aria-current="<%= dashboardData.page === 'students' ? 'page' : 'false' %>"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Student Dashboard</a>
+            <a href="/admin-dashboard/events" aria-current="<%= dashboardData.page === 'events' ? 'page' : 'false' %>"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Event Dashboard</a>
+            <a href="/admin-dashboard/participation" aria-current="<%= dashboardData.page === 'participation' ? 'page' : 'false' %>"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Student Participation</a>
+            <a href="/admin-dashboard/approvals" aria-current="<%= dashboardData.page === 'approvals' ? 'page' : 'false' %>"><i class="fa-solid fa-user-check" aria-hidden="true"></i> Approvals</a>
+            <a href="/admin-dashboard/reports" aria-current="<%= dashboardData.page === 'reports' ? 'page' : 'false' %>"><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Reports</a>
+        </div>
+        <div class="nav-actions">
+            <a href="/event-photos"><i class="fa-solid fa-download" aria-hidden="true"></i> Download Photos</a>
+            <a href="/logout">Log out</a>
+        </div>
+    </nav>
+
+    <main class="dashboard-layout" id="dashboard">
+        <section class="dashboard-hero">
+            <div class="dashboard-heading">
+                <p class="dashboard-kicker"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Admin workspace</p>
+                <h1><%= pageTitle %></h1>
+                <p><%= dashboardData.page === 'reports' ? 'View event and participation reports across the platform.' : dashboardData.page === 'participation' ? 'Select an event scheduled by an event coordinator to view student participation details.' : dashboardData.page === 'students' ? 'Explore student registrations across departments, semesters, and colleges.' : dashboardData.page === 'events' ? 'Track event activity, timing, and locations across the platform.' : dashboardData.page === 'approvals' ? 'Review faculty registrations and control access to your platform.' : 'Keep your celebrations organized and manage your platform with clarity.' %></p>
+            </div>
+            <% if (dashboardData.page === 'students') { %>
+            <a class="student-manage-link" href="/admin-dashboard"><i class="fa-solid fa-users" aria-hidden="true"></i> Manage accounts <span aria-hidden="true">&rarr;</span></a>
+            <% } else { %>
+            <div class="dashboard-hero-mark"><i class="fa-solid fa-fire-flame-curved"></i></div>
+            <% } %>
+        </section>
+
+        <% if (dashboardData.page === 'reports') { %>
+        <section class="reports-workspace" aria-labelledby="reports-library-title">
+            <div class="reports-summary" aria-label="Report overview">
+                <div><span class="reports-summary-icon"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span><span><strong><%= roleChartAccounts.filter(account => account.role === 'student').length.toLocaleString() %></strong><small>Registered students</small></span></div>
+                <div><span class="reports-summary-icon"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i></span><span><strong><%= eventMetricEvents.length.toLocaleString() %></strong><small>Events on the platform</small></span></div>
+                <div><span class="reports-summary-icon"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span><span><strong>2</strong><small>Available reports</small></span></div>
+            </div>
+            <header class="reports-library-heading">
+                <div><p class="reports-eyebrow">Insights &amp; activity</p><h2 id="reports-library-title">Report library</h2><p>Choose a report to explore your campus activity.</p></div>
+                <a class="reports-access" href="/event-reports"><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Coordinator reports</a>
+            </header>
+            <div class="reports-grid">
+            <% [
+                { title: 'Event Report', category: 'Events', tone: 'gold', description: "Download the coordinator's written report and photos for a selected event.", details: ['Select a fest and event', 'Written report & photos in one ZIP'], href: '/admin-dashboard/events', icon: 'fa-calendar-days' },
+                { title: 'Participation Report', category: 'Engagement', tone: 'mint', description: 'Explore student participation in events scheduled by coordinators.', details: ['Participants by selected event', 'Student registration details'], href: '/admin-dashboard/participation', icon: 'fa-clipboard-list' }
+            ].forEach((report, index) => { %>
+            <article class="report-card report-card-<%= report.tone %>">
+                <div class="report-card-top">
+                    <span class="report-card-icon"><i class="fa-solid <%= report.icon %>" aria-hidden="true"></i></span>
+                    <span class="report-category"><%= report.category %></span>
+                </div>
+                <span class="report-number">REPORT 0<%= index + 1 %></span>
+                <h3><%= report.title %></h3>
+                <p><%= report.description %></p>
+                <ul><% report.details.forEach((detail) => { %><li><i class="fa-solid fa-check" aria-hidden="true"></i><%= detail %></li><% }); %></ul>
+                <% if (report.title === 'Participation Report') { %>
+                <button class="report-open report-open-button" type="button" data-open-participation-report aria-label="Open <%= report.title %>">Open report <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+                <% } else { %>
+                <button class="report-open report-open-button" type="button" data-open-event-report aria-label="Open <%= report.title %>">Open report <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+                <% } %>
+            </article>
+            <% }); %>
+            </div>
+            <p class="reports-footnote"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Reports reflect current platform records. Open a report to view its full breakdown.</p>
+        </section>
+        <dialog class="event-report-download-dialog" id="event-report-download-dialog" aria-labelledby="event-report-download-title" aria-describedby="event-report-download-description">
+            <header class="event-report-modal-header">
+                <span class="event-report-modal-icon"><i class="fa-solid fa-file-zipper" aria-hidden="true"></i></span>
+                <div><p class="reports-eyebrow">Reports &amp; media</p><h2 id="event-report-download-title">Download event report</h2></div>
+                <button class="event-report-modal-close" type="button" data-close-event-report aria-label="Close event report">&times;</button>
+            </header>
+            <form id="event-report-download-form">
+                <div class="event-report-modal-body">
+                    <p id="event-report-download-description">Choose your event to get its coordinator's report and photos in one download.</p>
+                    <div class="event-report-selection-grid">
+                        <div class="event-report-select-field">
+                            <label for="event-report-fest"><span>1</span> Select fest</label>
+                            <select id="event-report-fest" required><option value="">Choose a fest</option></select>
+                        </div>
+                        <div class="event-report-select-field">
+                            <label for="event-report-event"><span>2</span> Select event</label>
+                            <select id="event-report-event" required disabled><option value="">Select fest first</option></select>
+                        </div>
+                    </div>
+                    <section class="event-report-package" aria-label="Download contents">
+                        <div class="event-report-package-heading"><h3>Included in your download</h3><span>ZIP archive</span></div>
+                        <div class="event-report-package-item"><span class="event-report-file-icon"><i class="fa-solid fa-file-lines" aria-hidden="true"></i></span><div><strong>Coordinator's report</strong><small>The written event report in a text file</small></div><span class="event-report-file-type">TXT</span></div>
+                        <div class="event-report-package-item"><span class="event-report-file-icon event-report-photo-icon"><i class="fa-solid fa-images" aria-hidden="true"></i></span><div><strong>Event photos</strong><small>All photos uploaded for the selected event</small></div><span class="event-report-file-type">PHOTOS</span></div>
+                    </section>
+                    <div class="event-report-notice"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><p id="event-report-download-status" role="status" aria-live="polite">Select a fest and event to download the ZIP.</p></div>
+                </div>
+                <footer class="event-report-modal-footer">
+                    <button class="event-report-cancel" type="button" data-close-event-report>Cancel</button>
+                    <button class="event-report-download-action" id="event-report-download-button" type="submit" disabled><i class="fa-solid fa-download" aria-hidden="true"></i><span>Download ZIP</span></button>
+                </footer>
+            </form>
+        </dialog>
+        <div class="participation-report-modal" id="participation-report-modal" hidden>
+            <div id="participation-report-event-options" hidden data-events="<%= JSON.stringify(dashboardData.participationEvents.map(event => ({ id: event.id, name: event.name, festName: event.festName || 'Other events' }))) %>"></div>
+            <div class="participation-report-backdrop" data-close-participation-report></div>
+            <section class="participation-report-dialog" role="dialog" aria-modal="true" aria-labelledby="participation-report-title">
+                <header class="participation-report-header">
+                    <div><p class="reports-eyebrow">Engagement report</p><h2 id="participation-report-title">Participation Report</h2></div>
+                    <button class="participation-report-close" type="button" data-close-participation-report aria-label="Close participation report">&times;</button>
+                </header>
+                <div class="participation-report-filters">
+                    <label for="report-fest-select">Fest</label>
+                    <select id="report-fest-select"><option value="">Select fest</option></select>
+                    <label for="report-event-select">Event</label>
+                    <select id="report-event-select" disabled><option value="">Select fest first</option></select>
+                </div>
+                <p class="participation-report-status" id="participation-report-status" role="status" aria-live="polite">Select a fest and event to view the report.</p>
+                <div id="participation-report-content" hidden>
+                    <section class="participation-winners" aria-labelledby="participation-winners-title">
+                        <div class="participation-report-section-heading"><h3 id="participation-winners-title">Top 3 winners</h3><span>Winner rankings</span></div>
+                        <div class="participation-winner-grid" id="participation-winner-grid"></div>
+                    </section>
+                    <section class="participation-all" aria-labelledby="participation-all-title">
+                        <div class="participation-report-section-heading"><h3 id="participation-all-title">All participants</h3><span id="participation-count"></span></div>
+                        <div class="admin-user-table-wrap">
+                            <table class="admin-user-table">
+                                <thead><tr><th>Rank</th><th>Student name</th><th>Enrollment number</th><th>Email</th><th>Department</th><th>Semester</th><th>College name</th></tr></thead>
+                                <tbody id="participation-report-table"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </div>
+        <% } %>
+
+        <% if (dashboardData.page === 'students' || dashboardData.page === 'events') { %>
+        <section class="dashboard-stats" aria-label="Dashboard summary">
+            <div class="dashboard-stat">
+                <span class="dashboard-stat-icon"><i class="fa-solid <%= dashboardData.page === 'students' ? 'fa-graduation-cap' : 'fa-calendar-days' %>" aria-hidden="true"></i></span>
+                <span><strong><%= (dashboardData.page === 'students' ? studentMetricAccounts.length : eventMetricEvents.length).toLocaleString() %></strong><small><%= dashboardData.page === 'students' ? 'Registered students' : 'Total events' %></small></span>
+            </div>
+            <div class="dashboard-stat">
+                <span class="dashboard-stat-icon stat-coral"><i class="fa-solid <%= dashboardData.page === 'students' ? 'fa-building-columns' : 'fa-location-dot' %>" aria-hidden="true"></i></span>
+                <span><strong><%= (dashboardData.page === 'students' ? studentDepartmentEntries.length : Object.keys(eventLocationCounts).length).toLocaleString() %></strong><small><%= dashboardData.page === 'students' ? 'Department groups' : 'Location groups' %></small></span>
+            </div>
+            <div class="dashboard-stat">
+                <span class="dashboard-stat-icon stat-green"><i class="fa-solid <%= dashboardData.page === 'students' ? 'fa-school' : 'fa-chart-line' %>" aria-hidden="true"></i></span>
+                <span><strong><%= (dashboardData.page === 'students' ? Object.keys(studentCollegeCounts).length : eventMonthSummary.months.filter((count) => count > 0).length).toLocaleString() %></strong><small><%= dashboardData.page === 'students' ? 'College groups' : 'Months with events' %></small></span>
+            </div>
+        </section>
+        <% } %>
+
+        <% if (dashboardData.page === 'approvals') { %>
+        <section class="faculty-approvals" aria-label="Faculty approvals">
+            <p id="faculty-approval-status" role="status" aria-live="polite"></p>
+            <% const facultyApprovalGroups = [
+                { status: 'pending', title: 'Pending Faculties', description: 'Approve these accounts to enable faculty login.', action: 'Approve', next: 'approved' },
+                { status: 'approved', title: 'Approved Faculties', description: 'These faculty accounts can log in. Stay moves an account back to Pending.', action: 'Stay', next: 'pending' }
+            ]; %>
+            <% facultyApprovalGroups.forEach((group) => { const facultyAccounts = roleChartAccounts.filter(account => account.role === 'faculty' && (account.approvalStatus || 'approved') === group.status); %>
+                <article class="dashboard-card admin-account-table-card" data-faculty-approval-group="<%= group.status %>">
+                    <header class="admin-table-heading"><h2><%= group.title %></h2><span class="student-total-chip"><%= facultyAccounts.length %> accounts</span></header>
+                    <p class="faculty-approval-description"><%= group.description %></p>
+                    <div class="admin-user-table-wrap" tabindex="0" role="region" aria-label="<%= group.title %>">
+                        <table class="admin-user-table">
+                            <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Mobile number</th><th scope="col">College</th><th scope="col">Department</th><th scope="col">Registration</th><th scope="col">Action</th></tr></thead>
+                            <tbody>
+                                <% facultyAccounts.forEach((account) => { %>
+                                    <tr class="faculty-approval-row">
+                                        <td><%= account.name || '-' %></td><td><%= account.email %></td><td><%= account.mobileNumber || '-' %></td>
+                                        <td><%= account.collegeName || '-' %></td><td><%= account.department || '-' %></td>
+                                        <td><%= ({ self: 'Self registered', admin: 'Added by admin', legacy: 'Existing account' }[account.registrationSource] || 'Existing account') %></td>
+                                        <td><button type="button" class="<%= group.status === 'pending' ? 'admin-add-user-button' : 'admin-delete-account' %> faculty-approval-button" data-faculty-id="<%= account.id %>" data-approval-next="<%= group.next %>" aria-label="<%= group.action %> <%= account.name || account.email %>"><%= group.action %></button></td>
+                                    </tr>
+                                <% }); %>
+                                <% if (!facultyAccounts.length) { %><tr class="admin-account-empty"><td colspan="7">No <%= group.status %> faculty accounts.</td></tr><% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            <% }); %>
+        </section>
+        <% } %>
+
+        <% if (dashboardData.page === 'overview') { %>
+        <section class="dashboard-stats" aria-label="Account summary">
+            <div class="dashboard-stat">
+                <span class="dashboard-stat-icon"><i class="fa-solid fa-id-card"></i></span>
+                <span><strong>Active</strong><small>Account status</small></span>
+            </div>
+            <div class="dashboard-stat">
+                <span class="dashboard-stat-icon stat-coral"><i class="fa-solid fa-earth-americas"></i></span>
+                <span><strong>Global</strong><small>Festival access</small></span>
+            </div>
+            <div class="dashboard-stat">
+                <span class="dashboard-stat-icon stat-green"><i class="fa-solid fa-calendar-check"></i></span>
+                <span><strong><%= eventMetricEvents.length.toLocaleString() %> events</strong><small>On the platform</small></span>
+            </div>
+        </section>
+        <% } %>
+
+        <% if (dashboardData.page === 'overview') { %>
+        <div class="admin-overview-toolbar">
+            <div><p class="dashboard-label">Accounts</p><h2>Account management</h2></div>
+        </div>
+        <section class="dashboard-grid">
+            <article class="dashboard-card role-chart-card" id="accounts">
+                <div class="dashboard-card-heading">
+                    <div class="dashboard-icon dashboard-icon-coral"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></div>
+                    <div>
+                        <p class="dashboard-label">Accounts</p>
+                        <h2>Account distribution</h2>
+                    </div>
+                </div>
+                <div class="dashboard-chart-columns">
+                    <section class="dashboard-chart-panel" aria-label="Registered accounts by role">
+                        <h3 class="dashboard-chart-title">By account role</h3>
+                        <div class="role-chart-content">
+                            <div class="role-chart-visual">
+                                <svg class="role-pie-chart" data-chart-entries="<%= JSON.stringify(roleChartEntries) %>" data-unit="registered accounts" viewBox="0 0 240 240" role="img" aria-label="Registered accounts by role">
+                                    <g class="role-pie-slices"></g>
+                                </svg>
+                                <div class="role-chart-total"><strong class="role-chart-total-count">0</strong><span>Registered accounts</span></div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </article>
+        </section>
+        <div class="admin-overview-actions">
+            <button id="add-user-button" class="admin-add-user-button" type="button" aria-haspopup="dialog"><span aria-hidden="true">+</span> Add User</button>
+        </div>
+        <section class="admin-account-search dashboard-card" aria-labelledby="account-search-title">
+            <label id="account-search-title" for="account-mobile-search">Search accounts by mobile number</label>
+            <div class="admin-search-controls">
+                <input id="account-mobile-search" type="search" inputmode="numeric" autocomplete="off" placeholder="Enter all or part of a mobile number" aria-describedby="account-search-status">
+                <button id="clear-account-search" class="admin-user-cancel" type="button">Clear</button>
+            </div>
+            <p id="account-search-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="admin-account-management" aria-label="Manage registered accounts">
+            <div class="admin-selection-toolbar">
+                <p id="selected-account-label">Select an account to modify or delete.</p>
+                <div class="admin-selection-actions">
+                    <button id="edit-selected-account" class="admin-user-cancel" type="button" disabled>Modify selected</button>
+                    <button id="delete-selected-account" class="admin-delete-account" type="button" disabled>Delete selected</button>
+                </div>
+            </div>
+            <p id="account-action-status" role="status" aria-live="polite"></p>
+            <% const accountGroups = [
+                { role: 'student', title: 'Students', columns: [['name', 'Name'], ['email', 'Email'], ['mobileNumber', 'Mobile number'], ['gender', 'Gender'], ['collegeName', 'College'], ['department', 'Department'], ['semester', 'Semester'], ['enrollmentNumber', 'Enrollment number']] },
+                { role: 'faculty', title: 'Faculty', columns: [['name', 'Name'], ['email', 'Email'], ['mobileNumber', 'Mobile number'], ['gender', 'Gender'], ['collegeName', 'College'], ['department', 'Department']] },
+                { role: 'event-coordinator', title: 'Event Coordinators', columns: [['instituteName', 'Institute'], ['name', 'Name'], ['gender', 'Gender'], ['email', 'Email'], ['mobileNumber', 'Mobile number'], ['loginId', 'Login ID']] }
+            ]; %>
+            <% accountGroups.forEach((group) => { const groupAccounts = roleChartAccounts.filter(account => account.role === group.role); %>
+                <article class="dashboard-card admin-account-table-card" data-account-group="<%= group.role %>">
+                    <header class="admin-table-heading"><h2><%= group.title %></h2><span class="student-total-chip"><span class="admin-table-match-count"><%= groupAccounts.length %></span> accounts</span></header>
+                    <div class="admin-user-table-wrap" tabindex="0" role="region" aria-label="<%= group.title %> accounts">
+                        <table class="admin-user-table">
+                            <thead><tr><th scope="col">Select</th><% group.columns.forEach((column) => { %><th scope="col"><%= column[1] %></th><% }); %></tr></thead>
+                            <tbody>
+                                <% groupAccounts.forEach((account) => { %>
+                                    <tr class="admin-account-row" data-mobile="<%= account.mobileNumber || '' %>" data-account="<%= JSON.stringify(account) %>">
+                                        <td><input type="radio" name="selected-account" aria-label="Select <%= account.name || account.email %>"></td>
+                                        <% group.columns.forEach(([key]) => { %><td><%= key === 'gender' ? ({ male: 'Male', female: 'Female', other: 'Other', 'prefer-not-to-say': 'Prefer not to say' }[account.gender] || 'Not specified') : (account[key] || '?') %></td><% }); %>
+                                    </tr>
+                                <% }); %>
+                                <tr class="admin-account-empty" <%= groupAccounts.length ? 'hidden' : '' %>><td colspan="<%= group.columns.length + 1 %>">No matching accounts.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            <% }); %>
+        </section>
+        <% } %>
+
+        <% if (dashboardData.page === 'students') { %>
+        <section class="analytics-dashboard student-analytics" id="student-dashboard" aria-label="Student dashboard">
+            <header class="student-section-heading">
+                <div><p class="dashboard-label">THE BIG PICTURE</p><h2>Student overview</h2><p>A closer look at your student community.</p></div>
+                <span class="student-total-chip"><i class="fa-solid fa-database" aria-hidden="true"></i> Registration data</span>
+            </header>
+            <div class="student-distribution-grid">
+                <% [
+                    { title: 'Semester distribution', description: 'Registrations across the academic journey', entries: studentSemesterChartEntries, icon: 'fa-layer-group' },
+                    { title: 'Department distribution', description: 'Your community, by field of study', entries: studentDepartmentChartEntries, icon: 'fa-building-columns' }
+                ].forEach((panel) => { %>
+                <article class="dashboard-card student-distribution-card">
+                    <div class="dashboard-card-heading">
+                        <div class="dashboard-icon"><i class="fa-solid <%= panel.icon %>" aria-hidden="true"></i></div>
+                        <div><h2><%= panel.title %></h2><p><%= panel.description %></p></div>
+                    </div>
+                    <div class="student-chart-layout">
+                        <div class="role-chart-visual student-donut">
+                            <svg class="role-pie-chart" data-chart-entries="<%= JSON.stringify(panel.entries) %>" data-unit="students" viewBox="0 0 240 240" role="img" aria-label="<%= panel.title %>">
+                                <g class="role-pie-slices"></g>
+                            </svg>
+                            <div class="role-chart-total"><strong class="role-chart-total-count"><%= panel.entries.reduce((sum, entry) => sum + entry.count, 0).toLocaleString() %></strong><span>Students</span></div>
+                        </div>
+                        <ul class="student-chart-legend" aria-label="<%= panel.title %> counts">
+                            <% panel.entries.forEach((entry) => { %>
+                            <li><span class="student-legend-dot" style="--student-tile-accent: <%= entry.color %>" aria-hidden="true"></span><span><%= entry.label %></span><strong><%= entry.count.toLocaleString() %></strong></li>
+                            <% }); %>
+                            <% if (!panel.entries.some((entry) => entry.count > 0)) { %><li class="student-stats-empty">No registrations yet.</li><% } %>
+                        </ul>
+                    </div>
+                </article>
+                <% }); %>
+            </div>
+            <section class="student-snapshot" aria-labelledby="student-snapshot-title">
+                <header class="student-section-heading">
+                    <div><p class="dashboard-label">COMMUNITY DETAILS</p><h2 id="student-snapshot-title">Student snapshot</h2><p>Every student counted. Every group in view.</p></div>
+                    <span class="student-total-chip"><strong><%= studentMetricAccounts.length.toLocaleString() %></strong> students</span>
+                </header>
+                <div class="student-detail-grid">
+                    <% [
+                        { id: 'gender', title: 'Gender breakdown', icon: 'fa-user-group', entries: studentGenderEntries },
+                        { id: 'semester', title: 'By semester', icon: 'fa-layer-group', entries: studentSemesterChartEntries },
+                        { id: 'department', title: 'By department', icon: 'fa-building-columns', entries: studentDepartmentChartEntries },
+                        { id: 'college', title: 'By college', icon: 'fa-school', entries: studentCollegeEntries }
+                    ].forEach((group) => { %>
+                    <section class="student-metric-section" aria-labelledby="student-<%= group.id %>-heading">
+                        <div class="student-detail-heading"><h3 id="student-<%= group.id %>-heading"><i class="fa-solid <%= group.icon %>" aria-hidden="true"></i> <%= group.title %></h3><span><%= group.entries.length %> groups</span></div>
+                        <div class="student-metric-grid <%= group.id %>-metric-grid">
+                            <% group.entries.forEach((entry) => { const share = studentMetricAccounts.length ? Math.round(entry.count / studentMetricAccounts.length * 100) : 0; %>
+                            <article class="student-metric-tile" style="--student-tile-accent: <%= entry.color %>">
+                                <span><%= entry.label %></span><strong><%= entry.count.toLocaleString() %></strong>
+                                <div class="student-share"><span class="student-share-track" aria-hidden="true"><span style="width: <%= share %>%"></span></span><small><%= share %>%</small></div>
+                            </article>
+                            <% }); %>
+                        </div>
+                        <% if (!group.entries.length) { %><p class="student-stats-empty">No registrations yet. This breakdown will appear when students sign up.</p><% } %>
+                        <% if (group.id === 'college' && Object.keys(studentCollegeCounts).length > studentCollegeEntries.length) { %><p class="student-stats-empty">Showing the <%= studentCollegeEntries.length %> largest college groups.</p><% } %>
+                    </section>
+                    <% }); %>
+                </div>
+            </section>
+        </section>
+        <% } %>
+
+        <% if (dashboardData.page === 'events') { %>
+        <section class="analytics-dashboard event-analytics" id="event-dashboard" aria-label="Event dashboard">
+            <section class="student-snapshot event-snapshot" aria-labelledby="event-snapshot-title">
+                <header class="student-snapshot-heading">
+                    <div>
+                        <p class="dashboard-label">Event analytics</p>
+                        <h2 id="event-snapshot-title">Event snapshot</h2>
+                    </div>
+                    <span class="student-total-chip"><strong><%= eventMetricEvents.length.toLocaleString() %></strong> events</span>
+                </header>
+
+                <article class="dashboard-card analytics-chart-card">
+                    <div class="dashboard-card-heading">
+                        <div class="dashboard-icon dashboard-icon-coral"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></div>
+                        <div>
+                            <p class="dashboard-label">Event distribution</p>
+                            <h2>Events by month</h2>
+                        </div>
+                    </div>
+                    <div class="dashboard-chart-columns">
+                        <section class="dashboard-chart-panel" aria-label="Events by month">
+                            <div class="role-chart-content">
+                                <div class="role-chart-visual">
+                                    <svg class="role-pie-chart" data-chart-entries="<%= JSON.stringify(eventMonthEntries) %>" data-unit="events" viewBox="0 0 240 240" role="img" aria-label="Events by month">
+                                        <g class="role-pie-slices"></g>
+                                    </svg>
+                                    <div class="role-chart-total"><strong class="role-chart-total-count">0</strong><span>Events</span></div>
+                                </div>
+                                <% if (!eventMetricEvents.length) { %><p class="department-chart-empty">No event data available.</p><% } %>
+                            </div>
+                        </section>
+                    </div>
+                </article>
+
+                <div class="student-detail-grid event-detail-grid">
+                <section class="student-metric-section" aria-labelledby="event-month-heading">
+                    <h3 id="event-month-heading">By month</h3>
+                    <% if (eventMonthEntries.length) { %>
+                        <div class="student-metric-grid">
+                            <% eventMonthEntries.forEach((entry) => { const share = eventMetricEvents.length ? Math.round(entry.count / eventMetricEvents.length * 100) : 0; %>
+                                <article class="student-metric-tile" style="--student-tile-accent: <%= entry.color %>">
+                                    <span><%= entry.label %></span>
+                                    <strong><%= entry.count.toLocaleString() %></strong>
+                                    <div class="student-share"><span class="student-share-track" aria-hidden="true"><span style="width: <%= share %>%"></span></span><small><%= share %>%</small></div>
+                                </article>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <p class="student-stats-empty">No event dates available.</p>
+                    <% } %>
+                </section>
+
+                <section class="student-metric-section" aria-labelledby="event-location-heading">
+                    <h3 id="event-location-heading">By location</h3>
+                    <% if (eventLocationEntries.length) { %>
+                        <div class="student-metric-grid">
+                            <% eventLocationEntries.forEach((entry) => { const share = eventMetricEvents.length ? Math.round(entry.count / eventMetricEvents.length * 100) : 0; %>
+                                <article class="student-metric-tile" style="--student-tile-accent: <%= entry.color %>">
+                                    <span><%= entry.label %></span>
+                                    <strong><%= entry.count.toLocaleString() %></strong>
+                                    <div class="student-share"><span class="student-share-track" aria-hidden="true"><span style="width: <%= share %>%"></span></span><small><%= share %>%</small></div>
+                                </article>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <p class="student-stats-empty">No event location data available.</p>
+                    <% } %>
+                </section>
+                </div>
+            </section>
+        </section>
+        <% } %>
+        <% if (dashboardData.page === 'participation') { %>
+        <section class="dashboard-card participation-filter" aria-labelledby="participation-filter-title">
+            <h2 id="participation-filter-title">Select fest and event</h2>
+            <div id="participation-event-options" hidden data-events="<%= JSON.stringify(dashboardData.participationEvents.map(event => ({ id: event.id, name: event.name, festName: event.festName || 'Other events' }))) %>" data-selected-event="<%= dashboardData.selectedEvent?.id || '' %>"></div>
+            <form action="/admin-dashboard/participation" method="get">
+                <label for="participation-fest">1. Fest</label>
+                <select id="participation-fest"><option value="">Select fest</option></select>
+                <label for="participation-event">2. Event</label>
+                <select id="participation-event" name="eventId" disabled><option value="">Select fest first</option></select>
+                <noscript><p>Enable JavaScript to select a fest and upload an Excel file.</p></noscript>
+            </form>
+        </section>
+        <section class="dashboard-card participation-upload" aria-labelledby="participation-upload-title">
+            <h2 id="participation-upload-title">3. Upload Excel file</h2>
+            <p id="student-excel-help">Choose a fest and event, then upload an Excel (.xlsx) file with an Enrollment number or Mobile number column. Matching registered students are automatically added to the selected event. Duplicate and unmatched rows are skipped. Up to 5 MB and 10,000 rows.</p>
+            <label for="student-excel-file">Excel file</label>
+            <input id="student-excel-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-describedby="student-excel-help student-excel-status" disabled>
+            <p id="student-excel-status" role="status" aria-live="polite">Select a fest and event to upload a file.</p>
+            <div id="student-excel-preview" hidden>
+                <div class="excel-preview-toolbar">
+                    <h3>4. Preview imported participants</h3>
+                    <button type="button" id="student-excel-clear" class="admin-user-cancel">Clear preview</button>
+                </div>
+                <div class="admin-user-table-wrap" tabindex="0" role="region" aria-label="Excel participation results">
+                    <table class="admin-user-table" id="student-excel-table"><caption class="participation-caption">Excel participation results</caption><thead><tr><th>Excel row</th><th>Status</th><th>Student name</th><th>Enrollment number</th><th>Mobile number</th><th>Department</th><th>Semester</th><th>College</th><th>Details</th></tr></thead><tbody></tbody></table>
+                </div>
+                <div class="excel-preview-toolbar">
+                    <button type="button" id="student-excel-previous" class="admin-user-cancel">Previous</button>
+                    <span id="student-excel-page"></span>
+                    <button type="button" id="student-excel-next" class="admin-user-cancel">Next</button>
+                </div>
+            </div>
+        </section>
+        <script src="/exceljs.min.js" defer></script>
+        <script src="/participation-excel.js" defer></script>
+        <section class="dashboard-card admin-account-table-card participation-results" aria-label="Event participant details">
+            <% if (dashboardData.selectedEvent) { %>
+            <header class="admin-table-heading"><h2><%= dashboardData.selectedEvent.name %></h2><span><%= dashboardData.participants.length %> participation records</span></header>
+            <p><%= dashboardData.selectedEvent.dateISO || dashboardData.selectedEvent.date %> · <%= dashboardData.selectedEvent.location %></p>
+            <div class="admin-user-table-wrap">
+                <table class="admin-user-table">
+                    <caption class="participation-caption">Student details and event registrations</caption>
+                    <thead><tr><th>Student name</th><th>Enrollment number</th><th>Email</th><th>Mobile number</th><th>Gender</th><th>Department</th><th>Semester</th><th>College name</th><th>Field of interest</th><th>Event name</th><th>Registered on</th></tr></thead>
+                    <tbody>
+                        <% dashboardData.participants.forEach(participant => { %>
+                        <tr>
+                            <% ['studentName', 'enrollmentNumber', 'email', 'mobileNumber', 'gender', 'department', 'semester', 'collegeName', 'fieldOfInterest', 'eventName'].forEach(key => { %>
+                            <td><%= participant[key] || 'Not recorded' %></td>
+                            <% }); %>
+                            <td><%= participant.createdAt ? new Date(participant.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'Not recorded' %></td>
+                        </tr>
+                        <% }); %>
+                        <% if (!dashboardData.participants.length) { %><tr><td colspan="11">No students have registered for this event yet.</td></tr><% } %>
+                    </tbody>
+                </table>
+            </div>
+            <% } else { %>
+            <p role="status"><%= dashboardData.participationEvents.length ? 'Select an event above to view its participants.' : 'No events have been scheduled by event coordinators yet.' %></p>
+            <% } %>
+        </section>
+        <% } %>
+    </main>
+    <script>
+        (() => {
+            const navToggle = document.querySelector('.mobile-nav-toggle');
+            const nav = document.querySelector('nav');
+            navToggle?.addEventListener('click', () => {
+                const expanded = nav.classList.toggle('mobile-nav-open');
+                navToggle.setAttribute('aria-expanded', String(expanded));
+                navToggle.setAttribute('aria-label', expanded ? 'Close navigation' : 'Open navigation');
+            });
+            nav.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && nav.classList.contains('mobile-nav-open')) {
+                    nav.classList.remove('mobile-nav-open');
+                    navToggle.setAttribute('aria-expanded', 'false');
+                    navToggle.setAttribute('aria-label', 'Open navigation');
+                    navToggle.focus();
+                }
+            });
+
+            document.querySelectorAll('.role-pie-chart').forEach((chart) => {
+                const slices = chart.querySelector('.role-pie-slices');
+                const unit = chart.dataset.unit;
+                const entries = JSON.parse(chart.dataset.chartEntries).map((entry) => ({
+                    label: entry.label,
+                    count: Math.max(0, Number(entry.count) || 0),
+                    color: entry.color
+                }));
+                const total = entries.reduce((sum, entry) => sum + entry.count, 0);
+                const center = 120;
+                const radius = 110;
+                let angle = -Math.PI / 2;
+
+                chart.parentElement.querySelector('.role-chart-total-count').textContent = total.toLocaleString();
+
+
+                if (total === 0) {
+                    const emptySlice = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    emptySlice.setAttribute('cx', center);
+                    emptySlice.setAttribute('cy', center);
+                    emptySlice.setAttribute('r', radius);
+                    emptySlice.setAttribute('class', 'role-pie-empty');
+                    slices.append(emptySlice);
+                }
+
+                entries.filter((entry) => entry.count > 0).forEach((entry) => {
+                    const nextAngle = angle + (entry.count / total) * Math.PI * 2;
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    const startX = center + radius * Math.cos(angle);
+                    const startY = center + radius * Math.sin(angle);
+                    const endX = center + radius * Math.cos(nextAngle);
+                    const endY = center + radius * Math.sin(nextAngle);
+                    const largeArc = nextAngle - angle > Math.PI ? 1 : 0;
+                    const displayUnit = entry.count === 1 ? (unit === 'registered accounts' ? 'registered account' : unit.replace(/s$/, '')) : unit;
+                    const tooltip = `${entry.label}: ${entry.count} ${displayUnit}`;
+
+                    if (entry.count === total) {
+                        const fullSlice = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        fullSlice.setAttribute('cx', center);
+                        fullSlice.setAttribute('cy', center);
+                        fullSlice.setAttribute('r', radius);
+                        fullSlice.setAttribute('fill', entry.color);
+                        fullSlice.setAttribute('class', 'role-pie-slice');
+                        fullSlice.setAttribute('tabindex', '0');
+                        fullSlice.setAttribute('aria-label', tooltip);
+                        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+                        title.textContent = tooltip;
+                        fullSlice.append(title);
+                        slices.append(fullSlice);
+                        return;
+                    }
+
+                    path.setAttribute('d', `M ${center} ${center} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY} Z`);
+                    path.setAttribute('fill', entry.color);
+                    path.setAttribute('class', 'role-pie-slice');
+                    path.setAttribute('tabindex', '0');
+                    path.setAttribute('aria-label', tooltip);
+                    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+                    title.textContent = tooltip;
+                    path.append(title);
+                    slices.append(path);
+                    angle = nextAngle;
+                });
+            });
+
+            document.querySelectorAll('.admin-user-delete-button').forEach((button) => {
+                button.addEventListener('click', async () => {
+                    const role = button.dataset.userRole;
+                    const email = button.dataset.userEmail;
+                    if (!window.confirm(`Permanently delete this ${role} account${email ? ` (${email})` : ''}? This cannot be undone.`)) return;
+
+                    button.disabled = true;
+                    try {
+                        const response = await fetch('/delete-managed-user', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: button.dataset.userId, role })
+                        });
+                        const result = await response.json();
+                        if (!result.success) {
+                            window.alert(result.message || 'Unable to delete this account.');
+                            button.disabled = false;
+                            return;
+                        }
+                        window.location.reload();
+                    } catch (error) {
+                        window.alert('Unable to delete this account. Check your connection and try again.');
+                        button.disabled = false;
+                    }
+                });
+            });
+
+            const eventReportDialog = document.getElementById('event-report-download-dialog');
+            if (eventReportDialog) {
+                const events = JSON.parse(document.getElementById('participation-report-event-options').dataset.events);
+                const fest = document.getElementById('event-report-fest');
+                const event = document.getElementById('event-report-event');
+                const button = document.getElementById('event-report-download-button');
+                const status = document.getElementById('event-report-download-status');
+                const opener = document.querySelector('[data-open-event-report]');
+                let downloading = false;
+                [...new Set(events.map(item => item.festName))].sort((a, b) => a.localeCompare(b))
+                    .forEach(name => fest.add(new Option(name, name)));
+                if (!events.length) status.textContent = 'No coordinator events are available yet.';
+                opener.addEventListener('click', () => eventReportDialog.showModal());
+                eventReportDialog.querySelectorAll('[data-close-event-report]').forEach(close => close.addEventListener('click', () => eventReportDialog.close()));
+                eventReportDialog.addEventListener('close', () => opener.focus());
+                fest.addEventListener('change', () => {
+                    event.replaceChildren(new Option(fest.value ? 'Select event' : 'Select fest first', ''));
+                    events.filter(item => item.festName === fest.value).forEach(item => event.add(new Option(item.name, item.id)));
+                    event.disabled = !fest.value;
+                    button.disabled = true;
+                    status.textContent = 'Select a fest and event to download the ZIP.';
+                });
+                event.addEventListener('change', () => {
+                    button.disabled = !event.value;
+                    status.textContent = event.value ? "The ZIP includes report.txt and this event's uploaded photos. A written report is required." : 'Select an event to download the ZIP.';
+                });
+                document.getElementById('event-report-download-form').addEventListener('submit', async submit => {
+                    submit.preventDefault();
+                    if (!event.value || downloading) return;
+                    downloading = true;
+                    button.disabled = fest.disabled = event.disabled = true;
+                    status.textContent = 'Preparing your report and photos...';
+                    try {
+                        const response = await fetch(`/event-content/report.zip?eventId=${encodeURIComponent(event.value)}`, { cache: 'no-store' });
+                        if (!response.ok) {
+                            const result = await response.json();
+                            throw new Error(result.message || 'Unable to download this event report.');
+                        }
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = response.headers.get('content-disposition')?.match(/filename="([^"]+)"/)?.[1] || 'event-report.zip';
+                        document.body.append(link);
+                        link.click();
+                        link.remove();
+                        setTimeout(() => URL.revokeObjectURL(url), 60000);
+                        status.textContent = 'Download started. If no photos were uploaded, the ZIP includes the report and a note.';
+                    } catch (error) {
+                        status.textContent = error.message || 'Unable to download. Please try again.';
+                    } finally {
+                        downloading = false;
+                        fest.disabled = false;
+                        event.disabled = !fest.value;
+                        button.disabled = !event.value;
+                    }
+                });
+            }
+
+            const participationModal = document.getElementById('participation-report-modal');
+            if (participationModal) {
+                const eventOptions = document.getElementById('participation-report-event-options');
+                const events = JSON.parse(eventOptions?.dataset.events || '[]');
+                const reportFest = document.getElementById('report-fest-select');
+                const reportEvent = document.getElementById('report-event-select');
+                const reportStatus = document.getElementById('participation-report-status');
+                const reportContent = document.getElementById('participation-report-content');
+                const winnerGrid = document.getElementById('participation-winner-grid');
+                const participantTable = document.getElementById('participation-report-table');
+                const participantCount = document.getElementById('participation-count');
+                let reportRequest;
+
+                function closeParticipationReport() {
+                    participationModal.hidden = true;
+                    document.body.classList.remove('participation-report-open');
+                }
+
+                function populateReportEvents() {
+                    reportEvent.replaceChildren(new Option(reportFest.value ? 'Select event' : 'Select fest first', ''));
+                    events.filter((event) => event.festName === reportFest.value)
+                        .forEach((event) => reportEvent.add(new Option(event.name, event.id)));
+                    reportEvent.disabled = !reportFest.value;
+                }
+
+                function renderParticipants(participants, eventName, winners) {
+                    participantCount.textContent = `${participants.length} participant${participants.length === 1 ? '' : 's'} · ${eventName}`;
+                    winnerGrid.replaceChildren();
+                    winners.forEach((participant) => {
+                        const winner = document.createElement('article');
+                        winner.className = `participation-winner winner-${participant.rank}`;
+                        winner.innerHTML = `<span class="participation-winner-rank">#${participant.rank}</span><strong></strong><small></small>`;
+                        winner.querySelector('strong').textContent = participant.studentName;
+                        winner.querySelector('small').textContent = participant.enrollmentNumber || 'Enrollment not recorded';
+                        winnerGrid.append(winner);
+                    });
+                    if (!winners.length) {
+                        const emptyWinner = document.createElement('p');
+                        emptyWinner.className = 'participation-report-empty';
+                        emptyWinner.textContent = 'The coordinator has not announced winners for this event yet.';
+                        winnerGrid.append(emptyWinner);
+                    }
+                    participantTable.replaceChildren();
+                    participants.forEach((participant, index) => {
+                        const row = document.createElement('tr');
+                        [index + 1, participant.name, participant.enrollment, participant.email, participant.department, participant.semester, participant.college].forEach((value) => {
+                            const cell = document.createElement('td');
+                            cell.textContent = value || 'Not recorded';
+                            row.append(cell);
+                        });
+                        participantTable.append(row);
+                    });
+                    reportContent.hidden = false;
+                }
+
+                async function loadReport() {
+                    reportContent.hidden = true;
+                    if (!reportEvent.value) {
+                        reportStatus.textContent = 'Select a fest and event to view the report.';
+                        return;
+                    }
+                    reportRequest?.abort();
+                    reportRequest = new AbortController();
+                    reportStatus.textContent = 'Loading participation records...';
+                    try {
+                        const response = await fetch(`/admin-dashboard/participation?eventId=${encodeURIComponent(reportEvent.value)}`, { signal: reportRequest.signal, cache: 'no-store' });
+                        if (!response.ok) throw new Error('Unable to load participation records.');
+                        const documentFragment = new DOMParser().parseFromString(await response.text(), 'text/html');
+                        const rows = [...documentFragment.querySelectorAll('.participation-results tbody tr')].filter((row) => row.cells.length > 1);
+                        const participants = rows.map((row) => ({
+                            name: row.cells[0].textContent.trim(),
+                            enrollment: row.cells[1].textContent.trim(),
+                            email: row.cells[2].textContent.trim(),
+                            department: row.cells[5].textContent.trim(),
+                            semester: row.cells[6].textContent.trim(),
+                            college: row.cells[7].textContent.trim()
+                        }));
+                        const selectedEvent = events.find((event) => event.id === reportEvent.value);
+                        const winnersResponse = await fetch(`/event-content/winners?eventId=${encodeURIComponent(reportEvent.value)}`, { signal: reportRequest.signal, cache: 'no-store' });
+                        if (!winnersResponse.ok) throw new Error('Unable to load event winners.');
+                        const { winners } = await winnersResponse.json();
+                        renderParticipants(participants, selectedEvent?.name || 'Selected event', winners);
+                        reportStatus.textContent = '';
+                    } catch (error) {
+                        if (error.name === 'AbortError') return;
+                        reportStatus.textContent = 'Unable to load this report. Please try again.';
+                    }
+                }
+
+                [...new Set(events.map((event) => event.festName))].sort((a, b) => a.localeCompare(b))
+                    .forEach((festName) => reportFest.add(new Option(festName, festName)));
+                document.querySelector('[data-open-participation-report]')?.addEventListener('click', () => {
+                    participationModal.hidden = false;
+                    document.body.classList.add('participation-report-open');
+                    reportFest.focus();
+                });
+                participationModal.querySelectorAll('[data-close-participation-report]').forEach((element) => element.addEventListener('click', closeParticipationReport));
+                reportFest.addEventListener('change', () => { populateReportEvents(); loadReport(); });
+                reportEvent.addEventListener('change', loadReport);
+                participationModal.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape') closeParticipationReport();
+                });
+            }
+        })();
+    </script>
+    <script src="/admin-users.js"></script>
+    <script src="/admin-approvals.js"></script>
+</body>
+</html>

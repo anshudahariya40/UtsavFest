@@ -1,0 +1,17 @@
+
+# Playwright
+node_modules/
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+/database-backup/
+/utsavfest.users.csv
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+/.local-server/
+/data/event-content/

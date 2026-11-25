@@ -1,0 +1,4 @@
+◇ injected env (12) from .env // tip: ⌘ override existing { override: true }
+MongoDB connected successfully.
+Participation relationships: { total: 29, updated: 0, unresolvedEvents: 24, unresolvedStudents: 24 }
+Server started: http://localhost:3000
